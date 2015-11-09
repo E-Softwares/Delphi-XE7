@@ -71,12 +71,13 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <VerInfo_Build>2</VerInfo_Build>
+        <Debugger_IncludeSystemVars>true</Debugger_IncludeSystemVars>
+        <VerInfo_Build>4</VerInfo_Build>
         <DCC_Define>AbbreviaZipper;$(DCC_Define)</DCC_Define>
         <Icon_MainIcon>F:\My Pictures\Icons\EG_Icon_Org.ico</Icon_MainIcon>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=E-Softwares;FileDescription=;FileVersion=1.0.0.2;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.2;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=E-Softwares;FileDescription=;FileVersion=1.0.0.4;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.1;Comments=Developed by Muhammad Ajmal P</VerInfo_Keys>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">

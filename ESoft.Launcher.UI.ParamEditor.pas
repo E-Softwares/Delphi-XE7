@@ -81,7 +81,7 @@ Begin
 
   If Not Assigned(FParameter) Then
   Begin
-    If Trim(edtParamName.Text) = '' Then
+    If Trim(edtParamName.Text).IsEmpty Then
     Begin
       MessageDlg('Name cannot be empty', mtError, [mbOK], 0);
       Abort;
@@ -141,7 +141,7 @@ End;
 
 Procedure TFormParamEditor.edtParamNameRightButtonClick(Sender: TObject);
 Begin
-  TButtonedEdit(Sender).Text := '';
+  TButtonedEdit(Sender).Text := String.Empty;
 End;
 
 Procedure TFormParamEditor.FormActivate(Sender: TObject);

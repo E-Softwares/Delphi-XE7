@@ -8,8 +8,6 @@ Program Launcher;
 uses
   Vcl.Forms,
   UnitMDIMain in 'UnitMDIMain.pas' {FormMDIMain},
-  Vcl.Themes,
-  Vcl.Styles,
   ESoft.Launcher.Application in 'ESoft.Launcher.Application.pas',
   ESoft.Launcher.UI.AppGroupEditor in 'ESoft.Launcher.UI.AppGroupEditor.pas' {FormAppGroupEditor},
   ESoft.Launcher.Parameter in 'ESoft.Launcher.Parameter.pas',

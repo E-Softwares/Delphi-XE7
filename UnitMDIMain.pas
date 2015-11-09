@@ -22,7 +22,6 @@ Uses
    Vcl.ExtCtrls,
    Vcl.ImgList,
    IniFiles,
-   URLMon,
    Generics.Collections,
    Vcl.Buttons,
    Vcl.Menus,
@@ -33,14 +32,7 @@ Uses
    ESoft.Launcher.Parameter,
    System.Zip,
    ESoft.Utils,
-   IdBaseComponent,
-   IdComponent,
-   IdTCPConnection,
-   IdTCPClient,
-   IdHTTP,
-   ShellApi,
-   WinInet,
-   BackgroundWorker;
+   PngImageList;
 
 Const
    cESoftLauncher = 'ESoft_Launcher';
@@ -66,7 +58,7 @@ Type
       N1: TMenuItem;
       PMItemShowHide: TMenuItem;
       N2: TMenuItem;
-      PMItemApplications: TMenuItem;
+      PMItemAppSep: TMenuItem;
       PopupMenuListView: TPopupMenu;
       PMItemEditGroup: TMenuItem;
       PMItemAddGroup: TMenuItem;
@@ -92,6 +84,8 @@ Type
       MItemAutobackup: TMenuItem;
       MenuHelp: TMenuItem;
       PMItemCheckforupdate: TMenuItem;
+      PMItemRefresh: TMenuItem;
+      imlAppIcons: TPngImageList;
       Procedure sBtnBrowseConnectionClick(Sender: TObject);
       Procedure edtConnectionRightButtonClick(Sender: TObject);
       Procedure FormCreate(Sender: TObject);
@@ -115,10 +109,13 @@ Type
       Procedure MItemRestoreClick(Sender: TObject);
       Procedure ApplicationEventsMinimize(Sender: TObject);
       Procedure PMItemCheckforupdateClick(Sender: TObject);
+      Procedure PMItemRefreshClick(Sender: TObject);
    Private
       // Private declarations. Variables/Methods can be access inside this class and other class in the same unit. { Ajmal }
    Strict Private
       // Strict Private declarations. Variables/Methods can be access inside this class only. { Ajmal }
+      FFixedMenuItems: TList<TMenuItem>;
+      FHotKeyMain: NativeUInt;
       FLastUsedParamCode: String;
       FRunAsAdmin: Boolean;
       FParameters: TEParameters;
@@ -126,17 +123,21 @@ Type
       FAppGroups: TEApplicationGroups;
       FParentFolder: String;
       FConnections: TEConnections;
+      FDisplayLabels: TStringList;
 
+      Function MenuItemApplications: TMenuItem;
+      Procedure WMHotKey(Var Msg: TWMHotKey); Message WM_HOTKEY;
       Procedure OpenParamBrowser(Const aApplication: IEApplication = Nil);
-      Procedure LoadConfig;
-      Procedure SaveConfig;
       Function GetConnections: TEConnections;
       Function GetAppGroups: TEApplicationGroups;
       Function GetParameters: TEParameters;
+      Function GetDisplayLabels: TStringList;
       Procedure DeleteOldBackups;
 
    Public
       { Public declarations }
+      Procedure LoadConfig;
+      Procedure SaveConfig(Const aBackUp: Boolean = True);
       Function BackupFolder: String;
       Procedure UpdateApplicationList;
       Procedure ReloadFromIni;
@@ -148,6 +149,7 @@ Type
       Property ParentFolder: String Read FParentFolder;
       Property RunAsAdmin: Boolean Read FRunAsAdmin Write FRunAsAdmin;
       Property LastUsedParamCode: String Read FLastUsedParamCode Write FLastUsedParamCode;
+      Property DisplayLabels: TStringList Read GetDisplayLabels;
    End;
 
 Var
@@ -164,13 +166,19 @@ Uses
    ESoft.Launcher.UI.BackupRestore;
 
 Const
-   cApplication_Version = 1002;
+   cApplication_Version = 1004;
 
+   cIMG_NONE = -1;
+   cIMG_GROUP = 12;
+   cIMG_CATEGORY = 19;
+   cIMG_PARENT_GROUP = 44;
+   cIMG_APPLICATION = 43;
    cIMG_HIDE = 40;
    cIMG_SHOW = 41;
 
    cAppZipFileNameInSite = 'http://esoft.ucoz.com/Downloads/Launcher/Launcher.zip';
-   cUniqueAppVersionCode = 'ESoft_Launcher';
+   cUniqueAppVersionCode = cESoftLauncher;
+
    cConfigBasic = 'Basic';
    cConfigFileName = 'FileName';
    cConfigStartMinimized = 'StartMinimized';
@@ -210,7 +218,7 @@ End;
 
 Procedure TFormMDIMain.edtConnectionRightButtonClick(Sender: TObject);
 Begin
-   Connections.FileName := '';
+   Connections.FileName := String.Empty;
    edtConnection.Text := Connections.FileName;
 End;
 
@@ -220,7 +228,18 @@ Begin
 End;
 
 Procedure TFormMDIMain.FormCreate(Sender: TObject);
+Var
+   iCntr: Integer;
 Begin
+   FHotKeyMain := GlobalAddAtom(cESoftLauncher);
+   RegisterHotKey(Handle, FHotKeyMain, MOD_WIN, Ord('Q'));
+
+   // Store the permenent menu into FixedItem list. { Ajmal }
+   // While updating the TrayIcon popup, we should not remove these menu items. { Ajmal }
+   FFixedMenuItems := TList<TMenuItem>.Create;
+   For iCntr := 0 To Pred(MenuItemApplications.Count) Do
+      FFixedMenuItems.Add(MenuItemApplications[iCntr]);
+
    PanelDeveloper.Caption := 'Developed by Muhammad Ajmal P';
    FInitialized := False;
    FParentFolder := ExtractFilePath(ParamStr(0));
@@ -232,17 +251,23 @@ End;
 
 Procedure TFormMDIMain.FormDestroy(Sender: TObject);
 Begin
+   FreeAndNil(FFixedMenuItems);
+   UnRegisterHotKey(Handle, FHotKeyMain);
+   GlobalDeleteAtom(FHotKeyMain);
+
+   If Assigned(FDisplayLabels) Then
+      FreeAndNil(FDisplayLabels);
    If Assigned(FConnections) Then
-      FConnections.Free;
+      FreeAndNil(FConnections);
    If Assigned(FParameters) Then
    Begin
       Parameters.SaveData(ParentFolder + cParam_INI);
-      FParameters.Free;
+      FreeAndNil(FParameters);
    End;
    If Assigned(FAppGroups) Then
    Begin
       AppGroups.SaveData(ParentFolder + cGroup_INI);
-      FAppGroups.Free;
+      FreeAndNil(FAppGroups);
    End;
 End;
 
@@ -269,6 +294,17 @@ Begin
    Result := FConnections;
 End;
 
+Function TFormMDIMain.GetDisplayLabels: TStringList;
+Begin
+   If Not Assigned(FDisplayLabels) Then
+   Begin
+      FDisplayLabels := TStringList.Create;
+      FDisplayLabels.Duplicates := dupIgnore;
+      FDisplayLabels.Sorted := True;
+   End;
+   Result := FDisplayLabels;
+End;
+
 Function TFormMDIMain.GetParameters: TEParameters;
 Begin
    If Not Assigned(FParameters) Then
@@ -288,11 +324,16 @@ Begin
       MItemAutobackup.Checked := varIniFile.ReadBool(cConfigBasic, cConfigAutoBackUpOnExit, False);
       MItemStartMinimized.Checked := varIniFile.ReadBool(cConfigBasic, cConfigStartMinimized, True);
       RunAsAdmin := varIniFile.ReadBool(cConfigBasic, cConfigRunAsAdmin, False);
-      LastUsedParamCode := varIniFile.ReadString(cConfigBasic, cConfigLastUsedParam, '');
-      Connections.FileName := varIniFile.ReadString(cConfigBasic, cConfigFileName, '');
+      LastUsedParamCode := varIniFile.ReadString(cConfigBasic, cConfigLastUsedParam, String.Empty);
+      Connections.FileName := varIniFile.ReadString(cConfigBasic, cConfigFileName, String.Empty);
    Finally
       varIniFile.Free;
    End;
+End;
+
+Function TFormMDIMain.MenuItemApplications: TMenuItem;
+Begin
+   Result := PopupMenuTray.Items;
 End;
 
 Procedure TFormMDIMain.MItemAutoStartClick(Sender: TObject);
@@ -415,6 +456,11 @@ Begin
             varDownloadManager.Add(cAppZipFileNameInSite, sZipFilaeName);
             If varDownloadManager.Download Then
             Begin
+               If FileExists(ParentFolder + 'Old_' + ExtractFileName(ParamStr(0))) Then
+               Begin
+                  If Not DeleteFile(ParentFolder + 'Old_' + ExtractFileName(ParamStr(0))) Then
+                     Raise Exception.Create('Cannot delete the file.');
+               End;
                RenameFile(ParamStr(0), ParentFolder + 'Old_' + ExtractFileName(ParamStr(0)));
                varZipFile.ExtractZipFile(sZipFilaeName, ParentFolder);
                MessageDlg('Application updated.', mtWarning, [mbOK], 0);
@@ -467,6 +513,11 @@ Begin
    Close;
 End;
 
+Procedure TFormMDIMain.PMItemRefreshClick(Sender: TObject);
+Begin
+   //
+End;
+
 Procedure TFormMDIMain.PMItemShowHideClick(Sender: TObject);
 Begin
    Visible := Not Visible;
@@ -501,11 +552,11 @@ Begin
    UpdateApplicationList;
 End;
 
-Procedure TFormMDIMain.SaveConfig;
+Procedure TFormMDIMain.SaveConfig(Const aBackUp: Boolean);
 Var
    varIniFile: TIniFile;
 Begin
-   If MItemAutobackup.Checked Then
+   If aBackUp And MItemAutobackup.Checked Then
       MItemBackup.Click;
 
    varIniFile := TIniFile.Create(ParentFolder + cConfig_INI);
@@ -515,7 +566,7 @@ Begin
       varIniFile.WriteBool(cConfigBasic, cConfigRunAsAdmin, RunAsAdmin);
       varIniFile.WriteString(cConfigBasic, cConfigLastUsedParam, LastUsedParamCode);
       If Connections.FileName = (cV6_FOLDER + cConnection_INI) Then
-         varIniFile.WriteString(cConfigBasic, cConfigFileName, '')
+         varIniFile.WriteString(cConfigBasic, cConfigFileName, String.Empty)
       Else
          varIniFile.WriteString(cConfigBasic, cConfigFileName, Connections.FileName);
    Finally
@@ -553,7 +604,7 @@ Begin
          OpenParamBrowser(varApplication)
       Else If varSelected.InheritsFrom(TEApplicationGroup) And varAppGroup.IsApplication Then
       Begin
-         If varAppGroup.FixedParameter = '' Then
+         If varAppGroup.FixedParameter.IsEmpty Then
             OpenParamBrowser(varAppGroup)
          Else
             varAppGroup.RunExecutable;
@@ -563,35 +614,125 @@ End;
 
 Procedure TFormMDIMain.UpdateApplicationList;
 Var
+   varMenuItems: TStringList;
+   iCntr: Integer;
+
+   Procedure AddMenu(Const aLabel: String; Const aMenuItem: TMenuItem);
+   Var
+      varCurrMenuLabel: TMenuItem;
+      iCntr: Integer;
+   Begin
+      If aLabel.IsEmpty Then
+      Begin
+         MenuItemApplications.Insert(MenuItemApplications.IndexOf(PMItemAppSep), aMenuItem);
+         Exit;
+      End;
+
+      varCurrMenuLabel := Nil;
+      For iCntr := 0 To Pred(varMenuItems.Count) Do
+      Begin
+         varCurrMenuLabel := varMenuItems.Objects[iCntr] As TMenuItem;
+         If SameText(aLabel, varCurrMenuLabel.Caption) Then
+            Break;
+         varCurrMenuLabel := Nil;
+      End;
+      If Not Assigned(varCurrMenuLabel) Then
+      Begin
+         varCurrMenuLabel := TMenuItem.Create(MenuItemApplications);
+         varCurrMenuLabel.Caption := aLabel;
+         varCurrMenuLabel.ImageIndex := cIMG_CATEGORY;
+         varMenuItems.AddObject(aLabel, varCurrMenuLabel);
+      End;
+      varCurrMenuLabel.Add(aMenuItem);
+   End;
+
+   Function GetLabelNode(Const aLabel: String; Const aCurrentNode: TTreeNode): TTreeNode;
+   Var
+      varNode: TTreeNode;
+      iCntr: Integer;
+   Begin
+      If aLabel.IsEmpty Then
+         Exit(aCurrentNode);
+
+      For iCntr := 0 To Pred(aCurrentNode.Count) Do
+      Begin
+         varNode := aCurrentNode.Item[iCntr];
+         If SameText(varNode.Text, aLabel) Then
+            Exit(varNode);
+      End;
+      Result := tvApplications.Items.AddChild(aCurrentNode, aLabel);
+      Result.ImageIndex := cIMG_CATEGORY;
+      Result.SelectedIndex := cIMG_CATEGORY;
+      DisplayLabels.Add(Result.Text);
+   End;
+
+   Procedure ClearMenuItems;
+   Var
+      iCntr: Integer;
+   Begin
+      iCntr := 0;
+      While iCntr < MenuItemApplications.Count Do
+      Begin
+         If FFixedMenuItems.IndexOf(MenuItemApplications[iCntr]) = -1 Then
+            MenuItemApplications.Delete(iCntr)
+         Else
+            Inc(iCntr);
+      End;
+   End;
+
+Var
    varAppGrp: TEApplicationGroup;
    varApp: TEApplication;
    iCurrGroupID: Integer;
-   varCurrNode, varParentNode: TTreeNode;
+   varCurrNode, varParentNode, varCurrLabelNode: TTreeNode;
    varCurrMenuGroup, varCurrMenuItem: TMenuItem;
    varGroupNames: TArray<String>;
    sCurrGroupName: String;
+   iCurrGrpImageIndex: Integer;
 Begin
    tvApplications.Items.Clear;
-   PMItemApplications.Clear;
+   ClearMenuItems;
+   imlAppIcons.Clear;
 
+   varMenuItems := TStringList.Create;
    tvApplications.Items.BeginUpdate;
    Try
+      varMenuItems.Duplicates := dupIgnore;
+      varMenuItems.Sorted := True;
       varParentNode := tvApplications.Items.AddChild(Nil, 'Groups');
-      PMItemApplications.Enabled := AppGroups.Count > 0;
+      varParentNode.ImageIndex := cIMG_PARENT_GROUP;
+      varParentNode.SelectedIndex := cIMG_PARENT_GROUP;
+      MenuItemApplications.Enabled := AppGroups.Count > 0;
 
       varGroupNames := AppGroups.Keys.ToArray;
       TArray.Sort<String>(varGroupNames);
       For sCurrGroupName In varGroupNames Do
       Begin
          varAppGrp := AppGroups[sCurrGroupName];
-         varCurrNode := tvApplications.Items.AddChildObject(varParentNode, varAppGrp.Name, varAppGrp);
-         varCurrMenuGroup := TMenuItem.Create(PMItemApplications);
+         varCurrLabelNode := GetLabelNode(varAppGrp.DisplayLabel, varParentNode);
+         varCurrNode := tvApplications.Items.AddChildObject(varCurrLabelNode, varAppGrp.Name, varAppGrp);
+         varCurrNode.ImageIndex := cIMG_GROUP;
+         varCurrNode.SelectedIndex := cIMG_GROUP;
+         varCurrMenuGroup := TMenuItem.Create(MenuItemApplications);
          varCurrMenuGroup.Caption := varAppGrp.Name;
-         PMItemApplications.Add(varCurrMenuGroup);
+         varCurrMenuGroup.ImageIndex := cIMG_GROUP;
+         AddMenu(varAppGrp.DisplayLabel, varCurrMenuGroup);
+         iCurrGrpImageIndex := cIMG_NONE;
          If varAppGrp.IsApplication Then
          Begin
             varCurrMenuGroup.Tag := NativeInt(varAppGrp);
             varCurrMenuGroup.OnClick := tvApplicationsDblClick;
+            Try
+               iCurrGrpImageIndex := imlAppIcons.AddIcon(varAppGrp.Icon);
+               imlAppIcons.GetBitmap(iCurrGrpImageIndex, varCurrMenuGroup.Bitmap);
+               varCurrMenuGroup.ImageIndex := cIMG_NONE;
+               varCurrNode.ImageIndex := iCurrGrpImageIndex;
+               varCurrNode.SelectedIndex := iCurrGrpImageIndex;
+            Except
+               varCurrMenuGroup.ImageIndex := cIMG_APPLICATION;
+               varCurrNode.ImageIndex := cIMG_APPLICATION;
+               varCurrNode.SelectedIndex := cIMG_APPLICATION;
+            End;
             Continue;
          End;
 
@@ -599,18 +740,38 @@ Begin
          varCurrMenuGroup.Enabled := varAppGrp.Count > 0;
          For varApp In varAppGrp Do
          Begin
-            tvApplications.Items.AddChildObject(varCurrNode, varApp.Name, varApp);
+            With tvApplications.Items.AddChildObject(varCurrNode, varApp.Name, varApp) Do
+            Begin
+               ImageIndex := cIMG_NONE;
+               SelectedIndex := cIMG_NONE;
+            End;
             varCurrMenuItem := TMenuItem.Create(varCurrMenuGroup);
             varCurrMenuItem.Caption := varApp.Name;
             varCurrMenuItem.Tag := NativeInt(varApp);
             varCurrMenuItem.OnClick := tvApplicationsDblClick;
+            If iCurrGrpImageIndex <> cIMG_NONE Then
+               imlAppIcons.GetBitmap(iCurrGrpImageIndex, varCurrMenuItem.Bitmap);
             varCurrMenuGroup.Add(varCurrMenuItem);
          End;
       End;
+
+      // Add label menu items to popup menu { Ajmal }
+      varCurrMenuItem := TMenuItem.Create(MenuItemApplications);
+      varCurrMenuItem.Caption := '-';
+      MenuItemApplications.Insert(MenuItemApplications.IndexOf(PMItemAppSep), varCurrMenuItem);
+      For iCntr := 0 To Pred(varMenuItems.Count) Do
+         MenuItemApplications.Insert(MenuItemApplications.IndexOf(PMItemAppSep), varMenuItems.Objects[iCntr] As TMenuItem);
       varParentNode.Expand(False);
    Finally
       tvApplications.Items.EndUpdate;
+      varMenuItems.Free;
    End;
+End;
+
+Procedure TFormMDIMain.WMHotKey(Var Msg: TWMHotKey);
+Begin
+   If Msg.HotKey = FHotKeyMain Then
+      PopupMenuTray.Popup(Mouse.CursorPos.X, Mouse.CursorPos.Y);
 End;
 
 End.

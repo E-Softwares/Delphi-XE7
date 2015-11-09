@@ -223,7 +223,7 @@ End;
 
 Function TEConnections.GetFileName: String;
 Begin
-  If Trim(FFileName) = '' Then
+  If Trim(FFileName).IsEmpty Then
     Result := cV6_FOLDER + cConnection_INI
   Else
     Result := FFileName;
@@ -313,7 +313,7 @@ Begin
     For iCntr := 0 To Pred(varList.Count) Do
     Begin
       sCurrName := varList[iCntr];
-      If sCurrName = '' Then
+      If sCurrName.IsEmpty Then
         Continue;
 
       varParameter := AddItem(sCurrName, varIniFile.ReadInteger(sCurrName, cParamType, cParamTypeInvalid));
