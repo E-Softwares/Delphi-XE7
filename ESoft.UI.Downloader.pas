@@ -119,7 +119,7 @@ Implementation
 
 Const
    cProgressMessage = '%d percent downloaded [%2fMB/%2fMB].';
-   cDefaultCaption = 'ESoft Download Manager';
+   cDefaultCaption = 'Download Manager';
    cDefaultTitle = 'Downloading file(s)';
    cDefaultText = 'Please wait . . . !';
    cDefaultPacketSize = 1024;
