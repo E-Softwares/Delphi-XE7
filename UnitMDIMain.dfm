@@ -21,74 +21,12 @@ object FormMDIMain: TFormMDIMain
   OnHide = FormHide
   PixelsPerInch = 96
   TextHeight = 13
-  object pnlConnection: TPanel
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 354
-    Height = 29
-    Align = alTop
-    BevelInner = bvRaised
-    BevelOuter = bvLowered
-    TabOrder = 0
-    Visible = False
-    object Label1: TLabel
-      AlignWithMargins = True
-      Left = 10
-      Top = 5
-      Width = 66
-      Height = 19
-      Margins.Left = 8
-      Align = alLeft
-      Caption = 'Connections'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Times New Roman'
-      Font.Style = [fsBold]
-      ParentFont = False
-      Layout = tlCenter
-      ExplicitHeight = 13
-    end
-    object sBtnBrowseConnection: TSpeedButton
-      AlignWithMargins = True
-      Left = 321
-      Top = 5
-      Width = 23
-      Height = 19
-      Margins.Right = 8
-      Align = alRight
-      Caption = '...'
-      OnClick = sBtnBrowseConnectionClick
-      ExplicitLeft = 314
-      ExplicitTop = 22
-      ExplicitHeight = 22
-    end
-    object edtConnection: TButtonedEdit
-      AlignWithMargins = True
-      Left = 87
-      Top = 5
-      Width = 223
-      Height = 19
-      Margins.Left = 8
-      Margins.Right = 8
-      Align = alClient
-      Images = ImageList
-      ReadOnly = True
-      RightButton.ImageIndex = 34
-      RightButton.PressedImageIndex = 4
-      RightButton.Visible = True
-      TabOrder = 0
-      OnRightButtonClick = edtConnectionRightButtonClick
-      ExplicitHeight = 21
-    end
-  end
   object tvApplications: TTreeView
     AlignWithMargins = True
     Left = 3
-    Top = 38
+    Top = 98
     Width = 354
-    Height = 388
+    Height = 328
     Align = alClient
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
@@ -102,8 +40,10 @@ object FormMDIMain: TFormMDIMain
     ReadOnly = True
     ShowHint = True
     SortType = stText
-    TabOrder = 1
+    TabOrder = 0
     OnDblClick = tvApplicationsDblClick
+    ExplicitTop = 38
+    ExplicitHeight = 388
   end
   object PanelDeveloper: TPanel
     AlignWithMargins = True
@@ -123,8 +63,141 @@ object FormMDIMain: TFormMDIMain
     Font.Style = [fsBold, fsItalic]
     Locked = True
     ParentFont = False
+    TabOrder = 1
+    Visible = False
+  end
+  object grpSettings: TGroupBox
+    Left = 0
+    Top = 0
+    Width = 360
+    Height = 95
+    Align = alTop
+    Caption = ' Settings '
     TabOrder = 2
     Visible = False
+    object pnlConnection: TPanel
+      AlignWithMargins = True
+      Left = 5
+      Top = 56
+      Width = 350
+      Height = 29
+      Align = alTop
+      BevelOuter = bvNone
+      TabOrder = 0
+      ExplicitLeft = 3
+      ExplicitTop = 3
+      ExplicitWidth = 354
+      object Label1: TLabel
+        AlignWithMargins = True
+        Left = 8
+        Top = 3
+        Width = 38
+        Height = 23
+        Margins.Left = 8
+        Align = alLeft
+        Caption = 'Hotkey'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Times New Roman'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Layout = tlCenter
+        ExplicitLeft = 10
+        ExplicitTop = 5
+        ExplicitHeight = 13
+      end
+      object Label3: TLabel
+        Left = 205
+        Top = 0
+        Width = 145
+        Height = 29
+        Align = alRight
+        Alignment = taRightJustify
+        Caption = ' Need to restart application '
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clMaroon
+        Font.Height = -12
+        Font.Name = 'Times New Roman'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Layout = tlCenter
+        ExplicitHeight = 15
+      end
+      object hKeyGeneral: THotKey
+        Left = 85
+        Top = 5
+        Width = 110
+        Height = 19
+        HotKey = 32849
+        TabOrder = 0
+      end
+    end
+    object Panel1: TPanel
+      AlignWithMargins = True
+      Left = 5
+      Top = 23
+      Width = 350
+      Height = 27
+      Margins.Top = 8
+      Align = alTop
+      BevelOuter = bvNone
+      TabOrder = 1
+      object Label2: TLabel
+        AlignWithMargins = True
+        Left = 8
+        Top = 3
+        Width = 66
+        Height = 21
+        Margins.Left = 8
+        Align = alLeft
+        Caption = 'Connections'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Times New Roman'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Layout = tlCenter
+        ExplicitLeft = 10
+        ExplicitTop = 5
+        ExplicitHeight = 13
+      end
+      object sBtnBrowseConnection: TSpeedButton
+        AlignWithMargins = True
+        Left = 319
+        Top = 3
+        Width = 23
+        Height = 21
+        Margins.Right = 8
+        Align = alRight
+        Caption = '...'
+        OnClick = sBtnBrowseConnectionClick
+        ExplicitLeft = 314
+        ExplicitTop = 22
+        ExplicitHeight = 22
+      end
+      object edtConnection: TButtonedEdit
+        AlignWithMargins = True
+        Left = 85
+        Top = 3
+        Width = 223
+        Height = 21
+        Margins.Left = 8
+        Margins.Right = 8
+        Align = alClient
+        Images = ImageList
+        ReadOnly = True
+        RightButton.ImageIndex = 34
+        RightButton.PressedImageIndex = 4
+        RightButton.Visible = True
+        TabOrder = 0
+        OnRightButtonClick = edtConnectionRightButtonClick
+        ExplicitLeft = 87
+        ExplicitTop = 5
+        ExplicitWidth = 219
+      end
+    end
   end
   object OpenDialog: TOpenDialog
     Left = 64
@@ -135,7 +208,7 @@ object FormMDIMain: TFormMDIMain
     Left = 32
     Top = 104
     Bitmap = {
-      494C01012D004800F80010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01012D004800FC0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000C0000000010020000000000000C0
       0000000000000000000000000000000000002C86D8FF2D88D8FF2D87D8FF2D88
       D8FF2D88D8FF2D88D8FF2D88D8FF2D88D8FF2D88D8FF2D88D8FF2D88D8FF2D87
@@ -1844,14 +1917,14 @@ object FormMDIMain: TFormMDIMain
         Caption = 'Auto Start'
         OnClick = MItemAutoStartClick
       end
-      object MItemConnections: TMenuItem
-        AutoCheck = True
-        Caption = 'Connections'
-        OnClick = MItemConnectionsClick
-      end
       object MItemStartMinimized: TMenuItem
         AutoCheck = True
         Caption = 'Start Minimized'
+      end
+      object MItemShowHideSettings: TMenuItem
+        AutoCheck = True
+        Caption = 'Show/Hide'
+        OnClick = MItemShowHideSettingsClick
       end
       object N5: TMenuItem
         Caption = '-'

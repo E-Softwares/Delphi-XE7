@@ -72,12 +72,12 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <Debugger_IncludeSystemVars>true</Debugger_IncludeSystemVars>
-        <VerInfo_Build>4</VerInfo_Build>
+        <VerInfo_Build>5</VerInfo_Build>
         <DCC_Define>AbbreviaZipper;$(DCC_Define)</DCC_Define>
         <Icon_MainIcon>F:\My Pictures\Icons\EG_Icon_Org.ico</Icon_MainIcon>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=E-Softwares;FileDescription=;FileVersion=1.0.0.4;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.1;Comments=Developed by Muhammad Ajmal P</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=DelScript;FileDescription=Easy application launcher;FileVersion=1.0.0.5;InternalName=Application Launcher;LegalCopyright=Copyright @ 2016;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.1;Comments=Developed by Muhammad Ajmal P</VerInfo_Keys>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -160,13 +160,7 @@
                 <Source>
                     <Source Name="MainSource">Launcher.dpr</Source>
                 </Source>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="C:\Program Files (x86)\RemObjects Software\RemObjects SDK for Delphi\Dcu\D14\RemObjects_Core_D14.bpl">RemObjects SDK - Core Library</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k210.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp210.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k210.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp210.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                </Excluded_Packages>
+                <Excluded_Packages/>
             </Delphi.Personality>
             <Deployment/>
             <Platforms>

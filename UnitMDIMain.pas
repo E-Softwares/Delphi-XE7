@@ -45,10 +45,6 @@ Const
 
 Type
    TFormMDIMain = Class(TForm)
-      pnlConnection: TPanel;
-      Label1: TLabel;
-      edtConnection: TButtonedEdit;
-      sBtnBrowseConnection: TSpeedButton;
       OpenDialog: TOpenDialog;
       ImageList: TImageList;
       TrayIcon: TTrayIcon;
@@ -75,7 +71,7 @@ Type
       MItemStartMinimized: TMenuItem;
       MItemParameters: TMenuItem;
       PanelDeveloper: TPanel;
-      MItemConnections: TMenuItem;
+      MItemShowHideSettings: TMenuItem;
       MItemAutoStart: TMenuItem;
       PMItemTrayUpdate: TMenuItem;
       N5: TMenuItem;
@@ -86,6 +82,15 @@ Type
       PMItemCheckforupdate: TMenuItem;
       PMItemRefresh: TMenuItem;
       imlAppIcons: TPngImageList;
+      grpSettings: TGroupBox;
+      pnlConnection: TPanel;
+      Label1: TLabel;
+      Panel1: TPanel;
+      Label2: TLabel;
+      sBtnBrowseConnection: TSpeedButton;
+      edtConnection: TButtonedEdit;
+      hKeyGeneral: THotKey;
+      Label3: TLabel;
       Procedure sBtnBrowseConnectionClick(Sender: TObject);
       Procedure edtConnectionRightButtonClick(Sender: TObject);
       Procedure FormCreate(Sender: TObject);
@@ -103,7 +108,7 @@ Type
       Procedure PopupMenuTrayPopup(Sender: TObject);
       Procedure ApplicationEventsActivate(Sender: TObject);
       Procedure MItemParametersClick(Sender: TObject);
-      Procedure MItemConnectionsClick(Sender: TObject);
+      Procedure MItemShowHideSettingsClick(Sender: TObject);
       Procedure MItemAutoStartClick(Sender: TObject);
       Procedure MItemBackupClick(Sender: TObject);
       Procedure MItemRestoreClick(Sender: TObject);
@@ -133,7 +138,7 @@ Type
       Function GetParameters: TEParameters;
       Function GetDisplayLabels: TStringList;
       Procedure DeleteOldBackups;
-
+      Procedure RegisterAppHotKey;
    Public
       { Public declarations }
       Procedure LoadConfig;
@@ -166,7 +171,7 @@ Uses
    ESoft.Launcher.UI.BackupRestore;
 
 Const
-   cApplication_Version = 1004;
+   cApplication_Version = 1005;
 
    cIMG_NONE = -1;
    cIMG_GROUP = 12;
@@ -185,6 +190,8 @@ Const
    cConfigRunAsAdmin = 'RunAsAdmin';
    cConfigLastUsedParam = 'LastUsedParam';
    cConfigAutoBackUpOnExit = 'AutoBackUpOnExit';
+   cConfigHotKey = 'HotKey';
+   cConfigDefaultHotKeyText = 'Alt+Q';
    cBackups = 'Backups\';
 
    { TFormMDIMain }
@@ -231,9 +238,6 @@ Procedure TFormMDIMain.FormCreate(Sender: TObject);
 Var
    iCntr: Integer;
 Begin
-   FHotKeyMain := GlobalAddAtom(cESoftLauncher);
-   RegisterHotKey(Handle, FHotKeyMain, MOD_WIN, Ord('Q'));
-
    // Store the permenent menu into FixedItem list. { Ajmal }
    // While updating the TrayIcon popup, we should not remove these menu items. { Ajmal }
    FFixedMenuItems := TList<TMenuItem>.Create;
@@ -246,6 +250,8 @@ Begin
    MItemAutoStart.Checked := AddToStartup(cESoftLauncher, REG_READ);
 
    LoadConfig;
+   RegisterAppHotKey;
+
    edtConnection.Text := Connections.FileName;
 End;
 
@@ -326,6 +332,7 @@ Begin
       RunAsAdmin := varIniFile.ReadBool(cConfigBasic, cConfigRunAsAdmin, False);
       LastUsedParamCode := varIniFile.ReadString(cConfigBasic, cConfigLastUsedParam, String.Empty);
       Connections.FileName := varIniFile.ReadString(cConfigBasic, cConfigFileName, String.Empty);
+      hKeyGeneral.HotKey := TextToShortCut(varIniFile.ReadString(cConfigBasic, cConfigHotKey, cConfigDefaultHotKeyText));
    Finally
       varIniFile.Free;
    End;
@@ -394,9 +401,9 @@ Begin
    End;
 End;
 
-Procedure TFormMDIMain.MItemConnectionsClick(Sender: TObject);
+Procedure TFormMDIMain.MItemShowHideSettingsClick(Sender: TObject);
 Begin
-   pnlConnection.Visible := MItemConnections.Checked;
+   grpSettings.Visible := MItemShowHideSettings.Checked;
 End;
 
 Procedure TFormMDIMain.MItemParametersClick(Sender: TObject);
@@ -542,6 +549,28 @@ Begin
       PMItemShowHide.ImageIndex := cIMG_SHOW;
 End;
 
+Procedure TFormMDIMain.RegisterAppHotKey;
+
+   Function _GetModifier(Const aModifiers: THKModifiers = [hkAlt]): Cardinal;
+   Begin
+      Result := 0;
+      If hkShift In aModifiers Then
+         Result := Result Or MOD_SHIFT;
+      If hkCtrl In aModifiers Then
+         Result := Result Or MOD_CONTROL;
+      If hkAlt In aModifiers Then
+         Result := Result Or MOD_ALT;
+   End;
+
+Var
+   varShift: TShiftState;
+   cKey: Word;
+Begin
+   FHotKeyMain := GlobalAddAtom(cESoftLauncher);
+   ShortCutToKey(hKeyGeneral.HotKey, cKey, varShift);
+   RegisterHotKey(Handle, FHotKeyMain, _GetModifier(hKeyGeneral.Modifiers), cKey);
+End;
+
 Procedure TFormMDIMain.ReloadFromIni;
 Begin
    LoadConfig;
@@ -565,6 +594,7 @@ Begin
       varIniFile.WriteBool(cConfigBasic, cConfigStartMinimized, MItemStartMinimized.Checked);
       varIniFile.WriteBool(cConfigBasic, cConfigRunAsAdmin, RunAsAdmin);
       varIniFile.WriteString(cConfigBasic, cConfigLastUsedParam, LastUsedParamCode);
+      varIniFile.WriteString(cConfigBasic, cConfigHotKey, ShortCutToText(hKeyGeneral.HotKey));
       If Connections.FileName = (cV6_FOLDER + cConnection_INI) Then
          varIniFile.WriteString(cConfigBasic, cConfigFileName, String.Empty)
       Else
