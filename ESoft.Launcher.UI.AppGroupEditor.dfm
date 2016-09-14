@@ -3,7 +3,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
   Top = 0
   BorderStyle = bsDialog
   Caption = 'Group Editor'
-  ClientHeight = 260
+  ClientHeight = 381
   ClientWidth = 371
   Color = 14871789
   Font.Charset = DEFAULT_CHARSET
@@ -23,12 +23,13 @@ object FormAppGroupEditor: TFormAppGroupEditor
     Left = 3
     Top = 3
     Width = 365
-    Height = 254
+    Height = 375
     Align = alClient
     TabOrder = 0
+    ExplicitHeight = 363
     DesignSize = (
       365
-      254)
+      375)
     object Label2: TLabel
       Left = 17
       Top = 99
@@ -192,7 +193,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
     end
     object btnCancel: TButton
       Left = 275
-      Top = 217
+      Top = 338
       Width = 75
       Height = 25
       Anchors = [akRight, akBottom]
@@ -200,10 +201,11 @@ object FormAppGroupEditor: TFormAppGroupEditor
       ModalResult = 2
       TabOrder = 8
       TabStop = False
+      ExplicitTop = 326
     end
     object btnOK: TButton
       Left = 194
-      Top = 217
+      Top = 338
       Width = 75
       Height = 25
       Anchors = [akRight, akBottom]
@@ -212,6 +214,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
       TabOrder = 9
       TabStop = False
       OnClick = btnOKClick
+      ExplicitTop = 386
     end
     object edtGroupName: TButtonedEdit
       Left = 100
@@ -268,6 +271,147 @@ object FormAppGroupEditor: TFormAppGroupEditor
       Height = 21
       TabOrder = 0
       OnKeyPress = edtGroupNameKeyPress
+    end
+    object GroupBox1: TGroupBox
+      Left = 17
+      Top = 204
+      Width = 333
+      Height = 117
+      Caption = '  Branching  '
+      TabOrder = 11
+      object Label8: TLabel
+        Left = 15
+        Top = 82
+        Width = 69
+        Height = 13
+        Caption = 'Main Branch'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Layout = tlCenter
+      end
+      object Label9: TLabel
+        Left = 176
+        Top = 82
+        Width = 68
+        Height = 13
+        Caption = 'No: Of Builds'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Layout = tlCenter
+      end
+      object chkMajor: TCheckBox
+        Left = 15
+        Top = 24
+        Width = 97
+        Height = 17
+        Caption = 'Major Version'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnClick = chkMajorClick
+      end
+      object chkMinor: TCheckBox
+        Left = 119
+        Top = 24
+        Width = 97
+        Height = 17
+        Caption = 'Minor Version'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        OnClick = chkMajorClick
+      end
+      object chkRelease: TCheckBox
+        Left = 222
+        Top = 24
+        Width = 97
+        Height = 17
+        Caption = 'Release Version'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        OnClick = chkMajorClick
+      end
+      object edtPrefix: TLabeledEdit
+        Left = 53
+        Top = 52
+        Width = 110
+        Height = 21
+        EditLabel.Width = 33
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Prefix'
+        EditLabel.Font.Charset = DEFAULT_CHARSET
+        EditLabel.Font.Color = clWindowText
+        EditLabel.Font.Height = -11
+        EditLabel.Font.Name = 'Tahoma'
+        EditLabel.Font.Style = [fsBold]
+        EditLabel.ParentFont = False
+        Enabled = False
+        LabelPosition = lpLeft
+        LabelSpacing = 5
+        TabOrder = 3
+        TextHint = 'Prefix'
+      end
+      object edtSufix: TLabeledEdit
+        Left = 209
+        Top = 52
+        Width = 110
+        Height = 21
+        EditLabel.Width = 28
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Sufix'
+        EditLabel.Font.Charset = DEFAULT_CHARSET
+        EditLabel.Font.Color = clWindowText
+        EditLabel.Font.Height = -11
+        EditLabel.Font.Name = 'Tahoma'
+        EditLabel.Font.Style = [fsBold]
+        EditLabel.ParentFont = False
+        Enabled = False
+        LabelPosition = lpLeft
+        LabelSpacing = 5
+        TabOrder = 4
+        TextHint = 'Sufix'
+      end
+      object sEdtMainBranch: TSpinEdit
+        Left = 98
+        Top = 79
+        Width = 65
+        Height = 22
+        MaxValue = 9999
+        MinValue = 0
+        TabOrder = 5
+        Value = 0
+      end
+      object sEdtNoOfBuilds: TSpinEdit
+        Left = 254
+        Top = 79
+        Width = 65
+        Height = 22
+        MaxValue = 25
+        MinValue = 0
+        TabOrder = 6
+        Value = 25
+      end
     end
   end
 end

@@ -15,7 +15,7 @@ object FormMDIMain: TFormMDIMain
   Menu = MainMenu
   OldCreateOrder = False
   Position = poScreenCenter
-  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnHide = FormHide
@@ -42,8 +42,6 @@ object FormMDIMain: TFormMDIMain
     SortType = stText
     TabOrder = 0
     OnDblClick = tvApplicationsDblClick
-    ExplicitTop = 38
-    ExplicitHeight = 388
   end
   object PanelDeveloper: TPanel
     AlignWithMargins = True
@@ -84,9 +82,6 @@ object FormMDIMain: TFormMDIMain
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 3
-      ExplicitTop = 3
-      ExplicitWidth = 354
       object Label1: TLabel
         AlignWithMargins = True
         Left = 8
@@ -103,8 +98,6 @@ object FormMDIMain: TFormMDIMain
         Font.Style = [fsBold]
         ParentFont = False
         Layout = tlCenter
-        ExplicitLeft = 10
-        ExplicitTop = 5
         ExplicitHeight = 13
       end
       object Label3: TLabel
@@ -159,8 +152,6 @@ object FormMDIMain: TFormMDIMain
         Font.Style = [fsBold]
         ParentFont = False
         Layout = tlCenter
-        ExplicitLeft = 10
-        ExplicitTop = 5
         ExplicitHeight = 13
       end
       object sBtnBrowseConnection: TSpeedButton
@@ -193,9 +184,6 @@ object FormMDIMain: TFormMDIMain
         RightButton.Visible = True
         TabOrder = 0
         OnRightButtonClick = edtConnectionRightButtonClick
-        ExplicitLeft = 87
-        ExplicitTop = 5
-        ExplicitWidth = 219
       end
     end
   end
@@ -208,7 +196,7 @@ object FormMDIMain: TFormMDIMain
     Left = 32
     Top = 104
     Bitmap = {
-      494C01012D004800FC0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01012D004800080110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000C0000000010020000000000000C0
       0000000000000000000000000000000000002C86D8FF2D88D8FF2D87D8FF2D88
       D8FF2D88D8FF2D88D8FF2D88D8FF2D88D8FF2D88D8FF2D88D8FF2D88D8FF2D87
@@ -1850,7 +1838,6 @@ object FormMDIMain: TFormMDIMain
   end
   object ApplicationEvents: TApplicationEvents
     OnActivate = ApplicationEventsActivate
-    OnMinimize = ApplicationEventsMinimize
     Left = 64
     Top = 136
   end

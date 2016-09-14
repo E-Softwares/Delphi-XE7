@@ -28,6 +28,7 @@ Uses
 
 Const
    cParameterNone = '<eNone>';
+   cInvalidBuildNumber = -1;
 
 Type
    IEApplication = Interface
@@ -46,7 +47,7 @@ Type
    Strict Private
       // Strict Private declarations. Variables/Methods can be access inside this class only. { Ajmal }
       FOwner: TEApplicationGroup;
-      FFileName: String;
+      FFileName, FVersionName: String;
 
       Function GetFileName(aType: eTAppFile): String;
       Procedure SetOwner(Const Value: TEApplicationGroup);
@@ -61,6 +62,12 @@ Type
       Function TargetFolder: String;
       Function RunExecutable(aParameter: String = String.Empty): Boolean;
       Function UnZip: Boolean;
+
+      Function VersionName: String;
+      Function MajorVersionName: String;
+      Function MinotVersionName: String;
+      Function ReleaseVersionName: String;
+      Function BuildNumber: Integer;
 
    Published
       Property Owner: TEApplicationGroup Read FOwner Write SetOwner;
@@ -84,6 +91,9 @@ Type
       FDisplayLabel: String;
       FCreateFolder: Boolean;
       FIcon: TIcon;
+      FIsMajorBranching, FIsMinorBranching, FIsReleaseBranching: Boolean;
+      FBranchingPrefix, FBranchingSufix: String;
+      FMainBranch, FNoOfBuilds: Integer;
 
       Procedure SetSourceFolder(Const Value: String);
       Procedure SetDestFolder(Const Value: String);
@@ -107,6 +117,8 @@ Type
       Procedure LoadData(Const aFileName: String);
       Procedure SaveData(Const aFileName: String);
 
+      Function IsBranchingEnabled: Boolean;
+
    Published
       Property Name: String Read FName Write FName;
       Property ExecutableName: String Read FExecutableName Write FExecutableName;
@@ -118,6 +130,13 @@ Type
       Property IsApplication: Boolean Read FIsApplication Write FIsApplication;
       Property DisplayLabel: String Read FDisplayLabel Write FDisplayLabel;
       Property Icon: TIcon Read GetIcon;
+      Property IsMajorBranching: Boolean Read FIsMajorBranching Write FIsMajorBranching;
+      Property IsMinorBranching: Boolean Read FIsMinorBranching Write FIsMinorBranching;
+      Property IsReleaseBranching: Boolean Read FIsReleaseBranching Write FIsReleaseBranching;
+      Property BranchingPrefix: String Read fBranchingPrefix Write FBranchingPrefix;
+      Property BranchingSufix: String Read FBranchingSufix Write FBranchingSufix;
+      Property MainBranch: Integer Read FMainBranch Write FMainBranch;
+      Property NoOfBuilds: Integer Read FNoOfBuilds Write FNoOfBuilds;
    End;
 
 Type
@@ -153,6 +172,13 @@ Const
    cGroupCreateFolder = 'Create_Folder';
    cGroupIsApp = 'Is_Application';
    cGroupLabel = 'Display_Label';
+   cGroupIsMajorBranching = 'Is_MajorBranching';
+   cGroupIsMinorBranching = 'Is_MinorBranching';
+   cGroupIsReleaseBranching = 'Is_ReleaseBranching';
+   cGroupBranchingPrefix = 'BranchingPrefix';
+   cGroupBranchingSufix = 'BranchingSufix';
+   cGroupBranchingMainBranch = 'BranchingMainBranch';
+   cGroupBranchingNoOfBuilds = 'BranchingNoOfBuilds';
 
 Function TEApplicationGroup.AddItem: TEApplication;
 Begin
@@ -181,6 +207,11 @@ Function TEApplicationGroup.InsertItem(Const aIndex: Integer): TEApplication;
 Begin
    Result := TEApplication.Create(Self);
    Insert(aIndex, Result);
+End;
+
+Function TEApplicationGroup.IsBranchingEnabled: Boolean;
+Begin
+   Result := IsMajorBranching Or IsMinorBranching Or IsReleaseBranching;
 End;
 
 Function TEApplicationGroup.GetIcon: TIcon;
@@ -238,6 +269,13 @@ Begin
       CreateFolder := varIniFile.ReadBool(Name, cGroupCreateFolder, True);
       IsApplication := varIniFile.ReadBool(Name, cGroupIsApp, False);
       DisplayLabel := varIniFile.ReadString(Name, cGroupLabel, '');
+      IsMajorBranching := varIniFile.ReadBool(Name, cGroupIsMajorBranching, False);
+      IsMinorBranching := varIniFile.ReadBool(Name, cGroupIsMinorBranching, False);
+      IsReleaseBranching := varIniFile.ReadBool(Name, cGroupIsReleaseBranching, False);
+      BranchingPrefix := varIniFile.ReadString(Name, cGroupBranchingPrefix, '');
+      BranchingSufix := varIniFile.ReadString(Name, cGroupBranchingSufix, '');
+      MainBranch := varIniFile.ReadInteger(Name, cGroupBranchingMainBranch, 0);
+      NoOfBuilds := varIniFile.ReadInteger(Name, cGroupBranchingNoOfBuilds, 0);
    Finally
       varIniFile.Free;
    End;
@@ -279,6 +317,13 @@ Begin
       varIniFile.WriteBool(Name, cGroupCreateFolder, CreateFolder);
       varIniFile.WriteBool(Name, cGroupIsApp, IsApplication);
       varIniFile.WriteString(Name, cGroupLabel, DisplayLabel);
+      varIniFile.WriteBool(Name, cGroupIsMajorBranching, IsMajorBranching);
+      varIniFile.WriteBool(Name, cGroupIsMinorBranching, IsMinorBranching);
+      varIniFile.WriteBool(Name, cGroupIsReleaseBranching, IsReleaseBranching);
+      varIniFile.WriteString(Name, cGroupBranchingPrefix, BranchingPrefix);
+      varIniFile.WriteString(Name, cGroupBranchingSufix, BranchingSufix);
+      varIniFile.WriteInteger(Name, cGroupBranchingMainBranch, MainBranch);
+      varIniFile.WriteInteger(Name, cGroupBranchingNoOfBuilds, NoOfBuilds);
    Finally
       varIniFile.Free;
    End;
@@ -403,10 +448,23 @@ End;
 
 { TEApplication }
 
+Function TEApplication.BuildNumber: Integer;
+Begin
+   If Not Owner.IsBranchingEnabled Then
+      Exit(cInvalidBuildNumber);
+
+   Try
+      Result := StrToInt(VersionName.Split(['.'])[3].Trim);
+   Except
+      Result := cInvalidBuildNumber;
+   End;
+End;
+
 Constructor TEApplication.Create(Const aOwner: TEApplicationGroup);
 Begin
    Assert(aOwner <> Nil, 'Owner cannot be nil');
    Owner := aOwner;
+   FVersionName := '';
 End;
 
 Function TEApplication.GetFileName(aType: eTAppFile): String;
@@ -421,9 +479,51 @@ Begin
    End;
 End;
 
+Function TEApplication.MajorVersionName: String;
+Begin
+   If Not Owner.IsMajorBranching Then
+      Exit('');
+
+   Try
+      Result := 'Version ' + VersionName.Split(['.'])[0].Trim;
+   Except
+      Result := '';
+   End;
+End;
+
+Function TEApplication.MinotVersionName: String;
+Begin
+   If Not Owner.IsMinorBranching Then
+      Exit('');
+
+   Try
+      Result := Format('Version %s.%s', [VersionName.Split(['.'])[0].Trim, VersionName.Split(['.'])[1].Trim]);
+   Except
+      Result := '';
+   End;
+End;
+
 Function TEApplication.QueryInterface(Const IID: TGUID; Out Obj): HRESULT;
 Begin
    Inherited;
+End;
+
+Function TEApplication.ReleaseVersionName: String;
+Var
+   sRelease: String;
+Begin
+   If Not Owner.IsReleaseBranching Then
+      Exit('');
+
+   Try
+      sRelease := VersionName.Split(['.'])[2].Trim;
+      If sRelease.Equals(IntToStr(Owner.MainBranch)) Then
+         Result := 'Main Release'
+      Else
+         Result := 'Release ' + sRelease;
+   Except
+      Result := '';
+   End;
 End;
 
 Function TEApplication.RunExecutable(aParameter: String): Boolean;
@@ -489,6 +589,25 @@ Begin
    Finally
       varZipObj.Free;
    End;
+End;
+
+Function TEApplication.VersionName: String;
+Begin
+   If Not Owner.IsBranchingEnabled Then
+      Exit('');
+
+   If Not FVersionName.IsEmpty Then
+      Exit(FVersionName);
+
+   FVersionName := Name;
+
+   If (Not Owner.BranchingPrefix.IsEmpty) And Name.StartsWith(Owner.BranchingPrefix, True) Then
+      FVersionName := StringReplace(FVersionName, Owner.BranchingPrefix, '', [rfIgnoreCase]);
+
+   If (Not Owner.BranchingSufix.IsEmpty) And Name.EndsWith(Owner.BranchingSufix, True) Then
+      FVersionName := StrSubString(Length(Owner.BranchingSufix), FVersionName);
+
+   Result := FVersionName;
 End;
 
 Function TEApplication._AddRef: Integer;

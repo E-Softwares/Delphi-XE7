@@ -21,7 +21,8 @@ Uses
    Vcl.ExtCtrls,
    Vcl.FileCtrl,
    ESoft.Launcher.Application,
-   Vcl.Buttons;
+   Vcl.Buttons,
+   Vcl.Samples.Spin;
 
 Type
    TFormAppGroupEditor = Class(TForm)
@@ -46,6 +47,16 @@ Type
       chkIsApplication: TCheckBox;
       Label7: TLabel;
       cbDisplayLabel: TComboBox;
+      GroupBox1: TGroupBox;
+      chkMajor: TCheckBox;
+      chkMinor: TCheckBox;
+      chkRelease: TCheckBox;
+      edtPrefix: TLabeledEdit;
+      edtSufix: TLabeledEdit;
+      sEdtMainBranch: TSpinEdit;
+      Label8: TLabel;
+      Label9: TLabel;
+      sEdtNoOfBuilds: TSpinEdit;
       Procedure sBtnBrowseAppSourceClick(Sender: TObject);
       Procedure btnOKClick(Sender: TObject);
       Procedure FormActivate(Sender: TObject);
@@ -56,7 +67,8 @@ Type
       Procedure FormClose(Sender: TObject; Var Action: TCloseAction);
       Procedure chkIsApplicationClick(Sender: TObject);
       Procedure FormCreate(Sender: TObject);
-    procedure edtFixedParamsRightButtonClick(Sender: TObject);
+      Procedure edtFixedParamsRightButtonClick(Sender: TObject);
+      Procedure chkMajorClick(Sender: TObject);
    Private
       // Private declarations. Variables/Methods can be access inside this class and other class in the same unit. { Ajmal }
    Strict Private
@@ -111,6 +123,13 @@ Begin
    AppGroup.FileMask := edtFileMask.Text;
    AppGroup.CreateFolder := chkCreateFolder.Checked;
    AppGroup.IsApplication := chkIsApplication.Checked;
+   AppGroup.IsMajorBranching := chkMajor.Checked;
+   AppGroup.IsMinorBranching := chkMinor.Checked;
+   AppGroup.IsReleaseBranching := chkRelease.Checked;
+   AppGroup.BranchingPrefix := edtPrefix.Text;
+   AppGroup.BranchingSufix := edtSufix.Text;
+   AppGroup.MainBranch := sEdtMainBranch.Value;
+   AppGroup.NoOfBuilds := sEdtNoOfBuilds.Value;
 
    AppGroup.SaveData(FormMDIMain.ParentFolder + cGroup_INI);
    ModalResult := mrOk;
@@ -121,6 +140,12 @@ Begin
    edtAppDest.Enabled := Not chkIsApplication.Checked;
    edtFileMask.Enabled := Not chkIsApplication.Checked;
    chkCreateFolder.Enabled := Not chkIsApplication.Checked;
+End;
+
+Procedure TFormAppGroupEditor.chkMajorClick(Sender: TObject);
+Begin
+   edtPrefix.Enabled := chkMajor.Checked Or chkMinor.Checked Or chkRelease.Checked;
+   edtSufix.Enabled := edtPrefix.Enabled;
 End;
 
 Constructor TFormAppGroupEditor.Create(aOwner: TComponent; Const aAppGroup: TEApplicationGroup);
@@ -137,10 +162,10 @@ Begin
    TButtonedEdit(Sender).Text := String.Empty;
 End;
 
-procedure TFormAppGroupEditor.edtFixedParamsRightButtonClick(Sender: TObject);
-begin
+Procedure TFormAppGroupEditor.edtFixedParamsRightButtonClick(Sender: TObject);
+Begin
    edtFixedParams.Text := cParameterNone;
-end;
+End;
 
 Procedure TFormAppGroupEditor.edtGroupNameChange(Sender: TObject);
 Begin
@@ -191,6 +216,14 @@ Begin
    edtFileMask.Text := AppGroup.FileMask;
    chkCreateFolder.Checked := AppGroup.CreateFolder;
    chkIsApplication.Checked := AppGroup.IsApplication;
+   chkMajor.Checked := AppGroup.IsMajorBranching;
+   chkMinor.Checked := AppGroup.IsMinorBranching;
+   chkRelease.Checked := AppGroup.IsReleaseBranching;
+   edtPrefix.Text := AppGroup.BranchingPrefix;
+   edtSufix.Text := AppGroup.BranchingSufix;
+   sEdtMainBranch.Value := AppGroup.MainBranch;
+   sEdtNoOfBuilds.Value := AppGroup.NoOfBuilds;
+
    chkIsApplicationClick(Nil);
 End;
 

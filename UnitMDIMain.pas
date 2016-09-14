@@ -95,7 +95,6 @@ Type
       Procedure edtConnectionRightButtonClick(Sender: TObject);
       Procedure FormCreate(Sender: TObject);
       Procedure FormDestroy(Sender: TObject);
-      Procedure FormClose(Sender: TObject; Var Action: TCloseAction);
       Procedure FormHide(Sender: TObject);
       Procedure PMItemShowHideClick(Sender: TObject);
       Procedure PMItemExitClick(Sender: TObject);
@@ -112,9 +111,9 @@ Type
       Procedure MItemAutoStartClick(Sender: TObject);
       Procedure MItemBackupClick(Sender: TObject);
       Procedure MItemRestoreClick(Sender: TObject);
-      Procedure ApplicationEventsMinimize(Sender: TObject);
       Procedure PMItemCheckforupdateClick(Sender: TObject);
       Procedure PMItemRefreshClick(Sender: TObject);
+      Procedure FormCloseQuery(Sender: TObject; Var CanClose: Boolean);
    Private
       // Private declarations. Variables/Methods can be access inside this class and other class in the same unit. { Ajmal }
    Strict Private
@@ -139,6 +138,7 @@ Type
       Function GetDisplayLabels: TStringList;
       Procedure DeleteOldBackups;
       Procedure RegisterAppHotKey;
+      Function ApplicationFromMenuItem(Const aMenuItem: TMenuItem): TEApplication;
    Public
       { Public declarations }
       Procedure LoadConfig;
@@ -171,9 +171,10 @@ Uses
    ESoft.Launcher.UI.BackupRestore;
 
 Const
-   cApplication_Version = 1005;
+   cApplication_Version = 1006;
 
    cIMG_NONE = -1;
+   cIMG_BRANCH = 9;
    cIMG_GROUP = 12;
    cIMG_CATEGORY = 19;
    cIMG_PARENT_GROUP = 44;
@@ -213,9 +214,15 @@ Begin
    End;
 End;
 
-Procedure TFormMDIMain.ApplicationEventsMinimize(Sender: TObject);
+Function TFormMDIMain.ApplicationFromMenuItem(Const aMenuItem: TMenuItem): TEApplication;
+Var
+   varObject: TObject;
 Begin
-   Hide;
+   Result := Nil;
+
+   varObject := Pointer(aMenuItem.Tag);
+   If varObject.InheritsFrom(TEApplication) Then
+      Result := varObject As TEApplication;
 End;
 
 Function TFormMDIMain.BackupFolder: String;
@@ -229,9 +236,10 @@ Begin
    edtConnection.Text := Connections.FileName;
 End;
 
-Procedure TFormMDIMain.FormClose(Sender: TObject; Var Action: TCloseAction);
+Procedure TFormMDIMain.FormCloseQuery(Sender: TObject; Var CanClose: Boolean);
 Begin
-   SaveConfig;
+   CanClose := False;
+   Hide;
 End;
 
 Procedure TFormMDIMain.FormCreate(Sender: TObject);
@@ -517,7 +525,8 @@ End;
 
 Procedure TFormMDIMain.PMItemExitClick(Sender: TObject);
 Begin
-   Close;
+   SaveConfig;
+   Application.Terminate;
 End;
 
 Procedure TFormMDIMain.PMItemRefreshClick(Sender: TObject);
@@ -645,13 +654,27 @@ End;
 Procedure TFormMDIMain.UpdateApplicationList;
 Var
    varMenuItems: TStringList;
-   iCntr: Integer;
 
-   Procedure AddMenu(Const aLabel: String; Const aMenuItem: TMenuItem);
+   Function _AddMenu(Const aLabel: String; Const aMenuItem: TMenuItem; Const aParentMenu: TMenuItem = Nil): TMenuItem;
    Var
       varCurrMenuLabel: TMenuItem;
       iCntr: Integer;
    Begin
+      Result := Nil;
+
+      If Assigned(aParentMenu) Then
+      Begin
+         Result := aParentMenu.Find(aLabel);
+         If Assigned(Result) Then
+            Exit;
+
+         Result := TMenuItem.Create(aParentMenu);
+         Result.Caption := aLabel;
+         Result.ImageIndex := cIMG_BRANCH;
+         aParentMenu.Add(Result);
+         Exit;
+      End;
+
       If aLabel.IsEmpty Then
       Begin
          MenuItemApplications.Insert(MenuItemApplications.IndexOf(PMItemAppSep), aMenuItem);
@@ -676,7 +699,7 @@ Var
       varCurrMenuLabel.Add(aMenuItem);
    End;
 
-   Function GetLabelNode(Const aLabel: String; Const aCurrentNode: TTreeNode): TTreeNode;
+   Function _GetLabelNode(Const aLabel: String; Const aCurrentNode: TTreeNode): TTreeNode;
    Var
       varNode: TTreeNode;
       iCntr: Integer;
@@ -696,7 +719,7 @@ Var
       DisplayLabels.Add(Result.Text);
    End;
 
-   Procedure ClearMenuItems;
+   Procedure _ClearMenuItems;
    Var
       iCntr: Integer;
    Begin
@@ -710,18 +733,52 @@ Var
       End;
    End;
 
+   Function _ApplicationBranch(Const aApplication: TEApplication; Const aParentGroup: TMenuItem): TMenuItem;
+   Var
+      iCntr: Integer;
+   Begin
+      Result := aParentGroup;
+
+      If Not aApplication.Owner.IsBranchingEnabled Then
+         Exit;
+
+      If Not aApplication.MajorVersionName.IsEmpty Then
+         Result := _AddMenu(aApplication.MajorVersionName, Nil, Result);
+
+      If Not aApplication.MinotVersionName.IsEmpty Then
+         Result := _AddMenu(aApplication.MinotVersionName, Nil, Result);
+
+      If Not aApplication.ReleaseVersionName.IsEmpty Then
+         Result := _AddMenu(aApplication.ReleaseVersionName, Nil, Result);
+
+      // For build seperation { Ajmal }
+      If (aApplication.Owner.NoOfBuilds = 0) Or (aApplication.BuildNumber = cInvalidBuildNumber) Then
+         Exit;
+
+      If (Result.Count > 0) And (Result.Items[Pred(Result.Count)].Count < aApplication.Owner.NoOfBuilds) Then
+      Begin
+         Result := Result.Items[Pred(Result.Count)];
+         Result.Caption := Format('Builds [%d-%d]', [ //
+            aApplication.BuildNumber, //
+            ApplicationFromMenuItem(Result.Items[0]).BuildNumber]);
+      End
+      Else
+         Result := _AddMenu(Format('Builds [%d-%d]', [aApplication.BuildNumber, aApplication.BuildNumber]), Nil, Result);
+   End;
+
 Var
    varAppGrp: TEApplicationGroup;
    varApp: TEApplication;
    iCurrGroupID: Integer;
    varCurrNode, varParentNode, varCurrLabelNode: TTreeNode;
-   varCurrMenuGroup, varCurrMenuItem: TMenuItem;
+   varCurrMenuGroup, varCurrMenuItem, varBranchMenuItem: TMenuItem;
    varGroupNames: TArray<String>;
    sCurrGroupName: String;
    iCurrGrpImageIndex: Integer;
+   iCntr: Integer;
 Begin
    tvApplications.Items.Clear;
-   ClearMenuItems;
+   _ClearMenuItems;
    imlAppIcons.Clear;
 
    varMenuItems := TStringList.Create;
@@ -739,14 +796,14 @@ Begin
       For sCurrGroupName In varGroupNames Do
       Begin
          varAppGrp := AppGroups[sCurrGroupName];
-         varCurrLabelNode := GetLabelNode(varAppGrp.DisplayLabel, varParentNode);
+         varCurrLabelNode := _GetLabelNode(varAppGrp.DisplayLabel, varParentNode);
          varCurrNode := tvApplications.Items.AddChildObject(varCurrLabelNode, varAppGrp.Name, varAppGrp);
          varCurrNode.ImageIndex := cIMG_GROUP;
          varCurrNode.SelectedIndex := cIMG_GROUP;
          varCurrMenuGroup := TMenuItem.Create(MenuItemApplications);
          varCurrMenuGroup.Caption := varAppGrp.Name;
          varCurrMenuGroup.ImageIndex := cIMG_GROUP;
-         AddMenu(varAppGrp.DisplayLabel, varCurrMenuGroup);
+         _AddMenu(varAppGrp.DisplayLabel, varCurrMenuGroup);
          iCurrGrpImageIndex := cIMG_NONE;
          If varAppGrp.IsApplication Then
          Begin
@@ -775,13 +832,15 @@ Begin
                ImageIndex := cIMG_NONE;
                SelectedIndex := cIMG_NONE;
             End;
-            varCurrMenuItem := TMenuItem.Create(varCurrMenuGroup);
+
+            varBranchMenuItem := _ApplicationBranch(varApp, varCurrMenuGroup);
+            varCurrMenuItem := TMenuItem.Create(varBranchMenuItem);
             varCurrMenuItem.Caption := varApp.Name;
             varCurrMenuItem.Tag := NativeInt(varApp);
             varCurrMenuItem.OnClick := tvApplicationsDblClick;
             If iCurrGrpImageIndex <> cIMG_NONE Then
                imlAppIcons.GetBitmap(iCurrGrpImageIndex, varCurrMenuItem.Bitmap);
-            varCurrMenuGroup.Add(varCurrMenuItem);
+            varBranchMenuItem.Add(varCurrMenuItem);
          End;
       End;
 
