@@ -40,6 +40,7 @@ Function GetUniqueFilename(Const aFolder: String; aExtn: String; Const aPrefix: 
 Procedure RunAsAdmin(hWnd: HWND; Const aFileName, aParameters, aDirectory: String; Const aShowState: Integer = SW_SHOWNORMAL);
 Function GetAppVersionFromSite(Const aUniqueAppCode: String; Const aLink: String = cAppVersionFileLink): String;
 Procedure EFreeAndNil(Var AObj);
+Procedure EFlashWindow(hWnd: HWND);
 
 Implementation
 
@@ -186,6 +187,18 @@ Procedure EFreeAndNil(Var aObj);
 Begin
    If Assigned(TObject(aObj)) Then
       FreeAndNil(aObj);
+End;
+
+Procedure EFlashWindow(hWnd: HWND);
+Var
+   varFlashInfo: FLASHWINFO;
+Begin
+   FillChar(varFlashInfo, SizeOf(varFlashInfo), 0);
+   varFlashInfo.cbSize := SizeOf(varFlashInfo);
+   varFlashInfo.hwnd := hWnd;
+   varFlashInfo.uCount := 3;
+   varFlashInfo.dwFlags := FLASHW_ALL + FLASHW_TIMER;
+   FlashWindowEx(varFlashInfo);
 End;
 
 End.

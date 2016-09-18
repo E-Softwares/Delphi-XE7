@@ -114,6 +114,7 @@ Type
       Procedure PMItemCheckforupdateClick(Sender: TObject);
       Procedure PMItemRefreshClick(Sender: TObject);
       Procedure FormCloseQuery(Sender: TObject; Var CanClose: Boolean);
+      Procedure tvApplicationsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
    Private
       // Private declarations. Variables/Methods can be access inside this class and other class in the same unit. { Ajmal }
    Strict Private
@@ -431,19 +432,32 @@ End;
 
 Procedure TFormMDIMain.OpenParamBrowser(Const aApplication: IEApplication);
 Begin
-   FormParameterBrowser := TFormParameterBrowser.Create(Self, aApplication);
+   If Assigned(FormParameterBrowser) Then
+   Begin
+      FormParameterBrowser.BringToFront;
+      EFlashWindow(FormParameterBrowser.Handle);
+      Exit;
+   End;
+
+   If Visible Then
+      FormParameterBrowser := TFormParameterBrowser.Create(Self, aApplication)
+   Else
+      FormParameterBrowser := TFormParameterBrowser.Create(Application, aApplication);
    Try
       FormParameterBrowser.ShowModal;
    Finally
-      FormParameterBrowser.Free;
+      EFreeAndNil(FormParameterBrowser);
    End;
 End;
 
 Procedure TFormMDIMain.PMItemAddGroupClick(Sender: TObject);
 Begin
    FormAppGroupEditor := TFormAppGroupEditor.Create(Self);
-   FormAppGroupEditor.ShowModal;
-   FormAppGroupEditor.Free;
+   Try
+      FormAppGroupEditor.ShowModal;
+   Finally
+      EFreeAndNil(FormAppGroupEditor);
+   End;
 End;
 
 Procedure TFormMDIMain.PMItemCheckforupdateClick(Sender: TObject);
@@ -536,7 +550,15 @@ End;
 
 Procedure TFormMDIMain.PMItemShowHideClick(Sender: TObject);
 Begin
+   If Assigned(FormParameterBrowser) Then
+   Begin
+      OpenParamBrowser;
+      Exit;
+   End;
+
    Visible := Not Visible;
+   If Visible And (WindowState = wsMinimized) Then
+      WindowState := wsNormal;
 End;
 
 Procedure TFormMDIMain.PMItemUpdateClick(Sender: TObject);
@@ -635,7 +657,7 @@ Begin
       varSelected := tvApplications.Selected.Data;
    End
    Else If Sender Is TMenuItem Then
-      varSelected := Pointer(TMenuItem(Sender).Tag);
+      varSelected := ApplicationFromMenuItem(TMenuItem(Sender));
 
    If Assigned(varSelected) Then
    Begin
@@ -649,6 +671,15 @@ Begin
             varAppGroup.RunExecutable;
       End;
    End;
+End;
+
+Procedure TFormMDIMain.tvApplicationsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+Var
+   varSelectedNode: TTreeNode;
+Begin
+   varSelectedNode := tvApplications.GetNodeAt(X, Y);
+   If Assigned(varSelectedNode) Then
+      varSelectedNode.Selected := True;
 End;
 
 Procedure TFormMDIMain.UpdateApplicationList;
@@ -745,8 +776,8 @@ Var
       If Not aApplication.MajorVersionName.IsEmpty Then
          Result := _AddMenu(aApplication.MajorVersionName, Nil, Result);
 
-      If Not aApplication.MinotVersionName.IsEmpty Then
-         Result := _AddMenu(aApplication.MinotVersionName, Nil, Result);
+      If Not aApplication.MinorVersionName.IsEmpty Then
+         Result := _AddMenu(aApplication.MinorVersionName, Nil, Result);
 
       If Not aApplication.ReleaseVersionName.IsEmpty Then
          Result := _AddMenu(aApplication.ReleaseVersionName, Nil, Result);

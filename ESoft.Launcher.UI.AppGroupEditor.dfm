@@ -3,7 +3,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
   Top = 0
   BorderStyle = bsDialog
   Caption = 'Group Editor'
-  ClientHeight = 381
+  ClientHeight = 405
   ClientWidth = 371
   Color = 14871789
   Font.Charset = DEFAULT_CHARSET
@@ -23,13 +23,13 @@ object FormAppGroupEditor: TFormAppGroupEditor
     Left = 3
     Top = 3
     Width = 365
-    Height = 375
+    Height = 399
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 363
+    ExplicitHeight = 375
     DesignSize = (
       365
-      375)
+      399)
     object Label2: TLabel
       Left = 17
       Top = 99
@@ -193,7 +193,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
     end
     object btnCancel: TButton
       Left = 275
-      Top = 338
+      Top = 362
       Width = 75
       Height = 25
       Anchors = [akRight, akBottom]
@@ -201,11 +201,11 @@ object FormAppGroupEditor: TFormAppGroupEditor
       ModalResult = 2
       TabOrder = 8
       TabStop = False
-      ExplicitTop = 326
+      ExplicitTop = 338
     end
     object btnOK: TButton
       Left = 194
-      Top = 338
+      Top = 362
       Width = 75
       Height = 25
       Anchors = [akRight, akBottom]
@@ -214,7 +214,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
       TabOrder = 9
       TabStop = False
       OnClick = btnOKClick
-      ExplicitTop = 386
+      ExplicitTop = 338
     end
     object edtGroupName: TButtonedEdit
       Left = 100
@@ -248,12 +248,13 @@ object FormAppGroupEditor: TFormAppGroupEditor
     object chkCreateFolder: TCheckBox
       Left = 264
       Top = 152
-      Width = 97
+      Width = 90
       Height = 17
       Caption = ' Create Folder'
       Checked = True
       State = cbChecked
       TabOrder = 10
+      OnClick = chkCreateFolderClick
     end
     object chkIsApplication: TCheckBox
       Left = 264
@@ -276,11 +277,11 @@ object FormAppGroupEditor: TFormAppGroupEditor
       Left = 17
       Top = 204
       Width = 333
-      Height = 117
+      Height = 141
       Caption = '  Branching  '
       TabOrder = 11
       object Label8: TLabel
-        Left = 15
+        Left = 177
         Top = 82
         Width = 69
         Height = 13
@@ -294,11 +295,25 @@ object FormAppGroupEditor: TFormAppGroupEditor
         Layout = tlCenter
       end
       object Label9: TLabel
-        Left = 176
-        Top = 82
+        Left = 177
+        Top = 110
         Width = 68
         Height = 13
         Caption = 'No: Of Builds'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Layout = tlCenter
+      end
+      object Label10: TLabel
+        Left = 15
+        Top = 82
+        Width = 85
+        Height = 13
+        Caption = 'Current Branch'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -373,7 +388,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
         TextHint = 'Prefix'
       end
       object edtSufix: TLabeledEdit
-        Left = 209
+        Left = 210
         Top = 52
         Width = 110
         Height = 21
@@ -393,10 +408,11 @@ object FormAppGroupEditor: TFormAppGroupEditor
         TextHint = 'Sufix'
       end
       object sEdtMainBranch: TSpinEdit
-        Left = 98
+        Left = 254
         Top = 79
         Width = 65
         Height = 22
+        Enabled = False
         MaxValue = 9999
         MinValue = 0
         TabOrder = 5
@@ -404,13 +420,34 @@ object FormAppGroupEditor: TFormAppGroupEditor
       end
       object sEdtNoOfBuilds: TSpinEdit
         Left = 254
-        Top = 79
+        Top = 107
         Width = 65
         Height = 22
+        Enabled = False
         MaxValue = 25
         MinValue = 0
         TabOrder = 6
         Value = 25
+      end
+      object sEdtCurrBranch: TSpinEdit
+        Left = 111
+        Top = 79
+        Width = 52
+        Height = 22
+        Enabled = False
+        MaxValue = 9999
+        MinValue = 0
+        TabOrder = 7
+        Value = 0
+      end
+      object chkCreateBranchFolder: TCheckBox
+        Left = 15
+        Top = 109
+        Width = 143
+        Height = 17
+        Caption = ' Create Branch Folders'
+        Enabled = False
+        TabOrder = 8
       end
     end
   end

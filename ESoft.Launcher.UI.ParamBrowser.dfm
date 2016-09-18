@@ -38,7 +38,7 @@ object FormParameterBrowser: TFormParameterBrowser
       Left = 10
       Top = 5
       Width = 37
-      Height = 15
+      Height = 28
       Margins.Left = 8
       Align = alLeft
       Caption = 'Search'
@@ -49,6 +49,7 @@ object FormParameterBrowser: TFormParameterBrowser
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitHeight = 15
     end
     object edtFilter: TButtonedEdit
       AlignWithMargins = True
@@ -103,7 +104,7 @@ object FormParameterBrowser: TFormParameterBrowser
       Left = 5
       Top = 5
       Width = 106
-      Height = 15
+      Height = 25
       Align = alLeft
       Caption = 'Selected Parameter '
       Font.Charset = ANSI_CHARSET
@@ -113,15 +114,17 @@ object FormParameterBrowser: TFormParameterBrowser
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitHeight = 15
     end
     object lblParameter: TLabel
       AlignWithMargins = True
       Left = 5
       Top = 36
-      Width = 3
+      Width = 678
       Height = 13
       Align = alBottom
       Layout = tlCenter
+      ExplicitWidth = 3
     end
     object btnCancel: TButton
       AlignWithMargins = True

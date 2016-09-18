@@ -57,6 +57,9 @@ Type
       Label8: TLabel;
       Label9: TLabel;
       sEdtNoOfBuilds: TSpinEdit;
+      Label10: TLabel;
+      sEdtCurrBranch: TSpinEdit;
+      chkCreateBranchFolder: TCheckBox;
       Procedure sBtnBrowseAppSourceClick(Sender: TObject);
       Procedure btnOKClick(Sender: TObject);
       Procedure FormActivate(Sender: TObject);
@@ -69,6 +72,7 @@ Type
       Procedure FormCreate(Sender: TObject);
       Procedure edtFixedParamsRightButtonClick(Sender: TObject);
       Procedure chkMajorClick(Sender: TObject);
+      Procedure chkCreateFolderClick(Sender: TObject);
    Private
       // Private declarations. Variables/Methods can be access inside this class and other class in the same unit. { Ajmal }
    Strict Private
@@ -130,9 +134,16 @@ Begin
    AppGroup.BranchingSufix := edtSufix.Text;
    AppGroup.MainBranch := sEdtMainBranch.Value;
    AppGroup.NoOfBuilds := sEdtNoOfBuilds.Value;
+   AppGroup.CurrentBranch := sEdtCurrBranch.Value;
+   AppGroup.CreateBranchFolder := chkCreateBranchFolder.Checked;
 
    AppGroup.SaveData(FormMDIMain.ParentFolder + cGroup_INI);
    ModalResult := mrOk;
+End;
+
+Procedure TFormAppGroupEditor.chkCreateFolderClick(Sender: TObject);
+Begin
+   chkCreateBranchFolder.Enabled := chkCreateFolder.Checked And edtPrefix.Enabled;
 End;
 
 Procedure TFormAppGroupEditor.chkIsApplicationClick(Sender: TObject);
@@ -146,6 +157,10 @@ Procedure TFormAppGroupEditor.chkMajorClick(Sender: TObject);
 Begin
    edtPrefix.Enabled := chkMajor.Checked Or chkMinor.Checked Or chkRelease.Checked;
    edtSufix.Enabled := edtPrefix.Enabled;
+   sEdtMainBranch.Enabled := edtPrefix.Enabled;
+   sEdtCurrBranch.Enabled := edtPrefix.Enabled;
+   sEdtNoOfBuilds.Enabled := edtPrefix.Enabled;
+   chkCreateFolderClick(Nil);
 End;
 
 Constructor TFormAppGroupEditor.Create(aOwner: TComponent; Const aAppGroup: TEApplicationGroup);
@@ -223,6 +238,8 @@ Begin
    edtSufix.Text := AppGroup.BranchingSufix;
    sEdtMainBranch.Value := AppGroup.MainBranch;
    sEdtNoOfBuilds.Value := AppGroup.NoOfBuilds;
+   sEdtCurrBranch.Value := AppGroup.CurrentBranch;
+   chkCreateBranchFolder.Checked := AppGroup.CreateBranchFolder;
 
    chkIsApplicationClick(Nil);
 End;

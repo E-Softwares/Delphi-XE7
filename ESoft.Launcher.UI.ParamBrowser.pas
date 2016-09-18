@@ -101,7 +101,8 @@ Type
       Function SelectedParameter: TEParameterBase;
       Function GetParameter: String;
       Procedure LoadParametrs;
-
+   Protected
+      Procedure CreateParams(Var Params: TCreateParams); Override;
    Public
       { Public declarations }
       Constructor Create(aOwner: TComponent; Const aApplication: IEApplication = Nil); Reintroduce;
@@ -112,7 +113,7 @@ Type
    End;
 
 Var
-   FormParameterBrowser: TFormParameterBrowser;
+   FormParameterBrowser: TFormParameterBrowser = Nil;
 
 Implementation
 
@@ -160,6 +161,16 @@ Begin
    Inherited Create(aOwner);
 
    FSelectedApplication := aApplication;
+   If Assigned(FSelectedApplication) Then
+      Caption := Format('Parameter Browser [%s]', [FSelectedApplication.ActualName]);
+End;
+
+Procedure TFormParameterBrowser.CreateParams(Var Params: TCreateParams);
+Begin
+   Inherited;
+
+   If Owner = Application Then
+      Params.ExStyle := Params.ExStyle Or WS_EX_APPWINDOW;
 End;
 
 Procedure TFormParameterBrowser.dbGridParametersCellClick(Column: TColumn);

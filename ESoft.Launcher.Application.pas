@@ -31,14 +31,17 @@ Const
    cInvalidBuildNumber = -1;
 
 Type
+   eTAppFile = (eafName, eafFileName, eafExtension);
+
    IEApplication = Interface
+      Function GetActualName: String;
       Function RunExecutable(aParameter: String = String.Empty): Boolean;
       Function UnZip: Boolean;
+
+      Property ActualName: String Read GetActualName;
    End;
 
 Type
-   eTAppFile = (eafName, eafFileName, eafExtension);
-
    TEApplicationGroup = Class;
 
    TEApplication = Class(TPersistent, IEApplication)
@@ -47,8 +50,10 @@ Type
    Strict Private
       // Strict Private declarations. Variables/Methods can be access inside this class only. { Ajmal }
       FOwner: TEApplicationGroup;
-      FFileName, FVersionName: String;
+      FFileName: String;
+      FVersionName: TArray<String>;
 
+      Function GetActualName: String;
       Function GetFileName(aType: eTAppFile): String;
       Procedure SetOwner(Const Value: TEApplicationGroup);
 
@@ -59,13 +64,14 @@ Type
       Function _AddRef: Integer; Stdcall;
       Function _Release: Integer; Stdcall;
 
+      Function TargetBranchPath: String;
       Function TargetFolder: String;
       Function RunExecutable(aParameter: String = String.Empty): Boolean;
       Function UnZip: Boolean;
 
-      Function VersionName: String;
+      Function VersionName: TArray<String>;
       Function MajorVersionName: String;
-      Function MinotVersionName: String;
+      Function MinorVersionName: String;
       Function ReleaseVersionName: String;
       Function BuildNumber: Integer;
 
@@ -89,12 +95,13 @@ Type
       FDestFolder: String;
       FFileMask: String;
       FDisplayLabel: String;
-      FCreateFolder: Boolean;
+      FCreateFolder, FCreateBranchFolder: Boolean;
       FIcon: TIcon;
       FIsMajorBranching, FIsMinorBranching, FIsReleaseBranching: Boolean;
       FBranchingPrefix, FBranchingSufix: String;
-      FMainBranch, FNoOfBuilds: Integer;
+      FMainBranch, FCurrentBranch, FNoOfBuilds: Integer;
 
+      Function GetActualName: String;
       Procedure SetSourceFolder(Const Value: String);
       Procedure SetDestFolder(Const Value: String);
       Procedure SetFileMask(Const Value: String);
@@ -135,8 +142,10 @@ Type
       Property IsReleaseBranching: Boolean Read FIsReleaseBranching Write FIsReleaseBranching;
       Property BranchingPrefix: String Read fBranchingPrefix Write FBranchingPrefix;
       Property BranchingSufix: String Read FBranchingSufix Write FBranchingSufix;
-      Property MainBranch: Integer Read FMainBranch Write FMainBranch;
       Property NoOfBuilds: Integer Read FNoOfBuilds Write FNoOfBuilds;
+      Property MainBranch: Integer Read FMainBranch Write FMainBranch;
+      Property CurrentBranch: Integer Read FCurrentBranch Write FCurrentBranch;
+      Property CreateBranchFolder: Boolean Read FCreateBranchFolder Write FCreateBranchFolder;
    End;
 
 Type
@@ -164,6 +173,12 @@ Uses
    ESoft.Launcher.UI.ParamBrowser;
 
 Const
+   cBRANCH_MAJOR_VERSION = 0;
+   cBRANCH_MINOR_VERSION = 1;
+   cBRANCH_RELEASE_VERSION = 2;
+   cBRANCH_BUILD_VERSION = 3;
+   cBRANCH_VERSION_SEPERATOR = '.';
+
    cGroupFixedParam = 'Fixed_Param';
    cGroupExeName = 'Executable_Name';
    cGroupFileMask = 'File_Mask';
@@ -179,6 +194,8 @@ Const
    cGroupBranchingSufix = 'BranchingSufix';
    cGroupBranchingMainBranch = 'BranchingMainBranch';
    cGroupBranchingNoOfBuilds = 'BranchingNoOfBuilds';
+   cGroupBranchingCurrentBranch = 'BranchingCurrentBranch';
+   cGroupBranchingCreateFolder = 'BranchingCreateFolder';
 
 Function TEApplicationGroup.AddItem: TEApplication;
 Begin
@@ -212,6 +229,11 @@ End;
 Function TEApplicationGroup.IsBranchingEnabled: Boolean;
 Begin
    Result := IsMajorBranching Or IsMinorBranching Or IsReleaseBranching;
+End;
+
+Function TEApplicationGroup.GetActualName: String;
+Begin
+   Result := Name;
 End;
 
 Function TEApplicationGroup.GetIcon: TIcon;
@@ -276,6 +298,8 @@ Begin
       BranchingSufix := varIniFile.ReadString(Name, cGroupBranchingSufix, '');
       MainBranch := varIniFile.ReadInteger(Name, cGroupBranchingMainBranch, 0);
       NoOfBuilds := varIniFile.ReadInteger(Name, cGroupBranchingNoOfBuilds, 0);
+      CurrentBranch := varIniFile.ReadInteger(Name, cGroupBranchingCurrentBranch, 0);
+      CreateBranchFolder := varIniFile.ReadBool(Name, cGroupBranchingCreateFolder, False);
    Finally
       varIniFile.Free;
    End;
@@ -324,6 +348,8 @@ Begin
       varIniFile.WriteString(Name, cGroupBranchingSufix, BranchingSufix);
       varIniFile.WriteInteger(Name, cGroupBranchingMainBranch, MainBranch);
       varIniFile.WriteInteger(Name, cGroupBranchingNoOfBuilds, NoOfBuilds);
+      varIniFile.WriteInteger(Name, cGroupBranchingCurrentBranch, CurrentBranch);
+      varIniFile.WriteBool(Name, cGroupBranchingCreateFolder, CreateBranchFolder);
    Finally
       varIniFile.Free;
    End;
@@ -454,7 +480,7 @@ Begin
       Exit(cInvalidBuildNumber);
 
    Try
-      Result := StrToInt(VersionName.Split(['.'])[3].Trim);
+      Result := StrToInt(VersionName[cBRANCH_BUILD_VERSION].Trim);
    Except
       Result := cInvalidBuildNumber;
    End;
@@ -464,7 +490,12 @@ Constructor TEApplication.Create(Const aOwner: TEApplicationGroup);
 Begin
    Assert(aOwner <> Nil, 'Owner cannot be nil');
    Owner := aOwner;
-   FVersionName := '';
+   SetLength(FVersionName, 0);
+End;
+
+Function TEApplication.GetActualName: String;
+Begin
+   Result := Name;
 End;
 
 Function TEApplication.GetFileName(aType: eTAppFile): String;
@@ -485,19 +516,19 @@ Begin
       Exit('');
 
    Try
-      Result := 'Version ' + VersionName.Split(['.'])[0].Trim;
+      Result := 'Version ' + VersionName[cBRANCH_MAJOR_VERSION].Trim;
    Except
       Result := '';
    End;
 End;
 
-Function TEApplication.MinotVersionName: String;
+Function TEApplication.MinorVersionName: String;
 Begin
    If Not Owner.IsMinorBranching Then
       Exit('');
 
    Try
-      Result := Format('Version %s.%s', [VersionName.Split(['.'])[0].Trim, VersionName.Split(['.'])[1].Trim]);
+      Result := Format('Version %s.%s', [VersionName[cBRANCH_MAJOR_VERSION].Trim, VersionName[cBRANCH_MINOR_VERSION].Trim]);
    Except
       Result := '';
    End;
@@ -516,9 +547,11 @@ Begin
       Exit('');
 
    Try
-      sRelease := VersionName.Split(['.'])[2].Trim;
+      sRelease := VersionName[cBRANCH_RELEASE_VERSION].Trim;
       If sRelease.Equals(IntToStr(Owner.MainBranch)) Then
          Result := 'Main Release'
+      Else If sRelease.Equals(IntToStr(Owner.CurrentBranch)) Then
+         Result := 'Current Release'
       Else
          Result := 'Release ' + sRelease;
    Except
@@ -545,10 +578,26 @@ Begin
    FOwner := Value;
 End;
 
+Function TEApplication.TargetBranchPath: String;
+Begin
+   Result := '';
+   If Not Owner.CreateBranchFolder Then
+      Exit;
+
+   If Owner.IsMajorBranching Then
+      Result := IncludeTrailingBackslash(MajorVersionName + '.x');
+
+   If Owner.IsMinorBranching Then
+      Result := Result + IncludeTrailingBackslash(MinorVersionName);
+
+   If Owner.IsReleaseBranching Then
+      Result := Result + IncludeTrailingBackslash(ReleaseVersionName);
+End;
+
 Function TEApplication.TargetFolder: String;
 Begin
    If Owner.CreateFolder Then
-      Result := Owner.DestFolder + Name
+      Result := IncludeTrailingBackslash(Owner.DestFolder) + TargetBranchPath + Name
    Else
       Result := Owner.DestFolder;
 End;
@@ -591,23 +640,29 @@ Begin
    End;
 End;
 
-Function TEApplication.VersionName: String;
+Function TEApplication.VersionName: TArray<String>;
+Var
+   sVersion: String;
 Begin
    If Not Owner.IsBranchingEnabled Then
-      Exit('');
+   Begin
+      SetLength(FVersionName, 0);
+      Exit(FVersionName);
+   End;
 
-   If Not FVersionName.IsEmpty Then
+   // Check we already loaded the version name { Ajmal }
+   If Length(FVersionName) <> 0 Then
       Exit(FVersionName);
 
-   FVersionName := Name;
+   sVersion := Name;
 
    If (Not Owner.BranchingPrefix.IsEmpty) And Name.StartsWith(Owner.BranchingPrefix, True) Then
-      FVersionName := StringReplace(FVersionName, Owner.BranchingPrefix, '', [rfIgnoreCase]);
+      sVersion := StringReplace(sVersion, Owner.BranchingPrefix, '', [rfIgnoreCase]);
 
    If (Not Owner.BranchingSufix.IsEmpty) And Name.EndsWith(Owner.BranchingSufix, True) Then
-      FVersionName := StrSubString(Length(Owner.BranchingSufix), FVersionName);
+      sVersion := StrSubString(Length(Owner.BranchingSufix), sVersion);
 
-   Result := FVersionName;
+   Result := sVersion.Split([cBRANCH_VERSION_SEPERATOR]);
 End;
 
 Function TEApplication._AddRef: Integer;
