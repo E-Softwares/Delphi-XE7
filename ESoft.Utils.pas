@@ -5,6 +5,7 @@ Interface
 Uses
    Windows,
    System.Classes,
+   Vcl.Graphics,
    System.SysUtils,
    ShellApi,
    IdBaseComponent,
@@ -41,6 +42,7 @@ Procedure RunAsAdmin(hWnd: HWND; Const aFileName, aParameters, aDirectory: Strin
 Function GetAppVersionFromSite(Const aUniqueAppCode: String; Const aLink: String = cAppVersionFileLink): String;
 Procedure EFreeAndNil(Var AObj);
 Procedure EFlashWindow(hWnd: HWND);
+Procedure FetchIcon(Const aFileName: String; Const aIcon: TIcon);
 
 Implementation
 
@@ -199,6 +201,16 @@ Begin
    varFlashInfo.uCount := 3;
    varFlashInfo.dwFlags := FLASHW_ALL + FLASHW_TIMER;
    FlashWindowEx(varFlashInfo);
+End;
+
+Procedure FetchIcon(Const aFileName: String; Const aIcon: TIcon);
+Var
+   varSmallIcon, varLargeIcon: HICON;
+   iExtractedIconCount: Cardinal;
+Begin
+   iExtractedIconCount := ExtractIconEx(PWideChar(aFileName), 0, varLargeIcon, varSmallIcon, 1);
+   Win32Check(iExtractedIconCount = 2);
+   aIcon.Handle := varLargeIcon;
 End;
 
 End.

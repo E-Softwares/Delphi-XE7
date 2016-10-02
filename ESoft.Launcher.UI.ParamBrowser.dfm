@@ -62,7 +62,6 @@ object FormParameterBrowser: TFormParameterBrowser
       Margins.Right = 8
       Margins.Bottom = 7
       Align = alClient
-      Images = FormMDIMain.ImageList
       RightButton.ImageIndex = 24
       RightButton.Visible = True
       TabOrder = 0
@@ -80,7 +79,7 @@ object FormParameterBrowser: TFormParameterBrowser
       DropDownMenu = PopupMenuAdditionalParameters
       ImageAlignment = iaRight
       ImageIndex = 9
-      Images = FormMDIMain.ImageList
+      Images = FormMDIMain.ImageList_20
       Style = bsSplitButton
       TabOrder = 1
       TabStop = False
@@ -238,6 +237,7 @@ object FormParameterBrowser: TFormParameterBrowser
     TabOrder = 4
   end
   object MainMenu: TMainMenu
+    Images = FormMDIMain.ImageList_20
     Left = 88
     Top = 104
     object MenuFile: TMenuItem
@@ -288,11 +288,12 @@ object FormParameterBrowser: TFormParameterBrowser
     end
   end
   object PopupMenuAdditionalParameters: TPopupMenu
+    Images = FormMDIMain.ImageList_20
     Left = 184
     Top = 104
   end
   object PopupMenu: TPopupMenu
-    Images = FormMDIMain.ImageList
+    Images = FormMDIMain.ImageList_20
     OnPopup = PopupMenuPopup
     Left = 216
     Top = 104
@@ -321,7 +322,7 @@ object FormParameterBrowser: TFormParameterBrowser
     end
   end
   object PopupMenuRunApp: TPopupMenu
-    Images = FormMDIMain.ImageList
+    Images = FormMDIMain.ImageList_20
     Left = 216
     Top = 136
     object PMItemRun: TMenuItem
@@ -330,7 +331,7 @@ object FormParameterBrowser: TFormParameterBrowser
     end
     object PMItemRunasadministrator: TMenuItem
       Caption = 'Run as administrator'
-      ImageIndex = 43
+      ImageIndex = 42
       OnClick = btnOKClick
     end
   end

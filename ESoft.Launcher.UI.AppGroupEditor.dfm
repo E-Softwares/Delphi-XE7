@@ -26,7 +26,6 @@ object FormAppGroupEditor: TFormAppGroupEditor
     Height = 399
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 375
     DesignSize = (
       365
       399)
@@ -142,7 +141,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
       Top = 96
       Width = 221
       Height = 21
-      Images = FormMDIMain.ImageList
+      Images = FormMDIMain.ImageList_Ord
       ReadOnly = True
       RightButton.ImageIndex = 34
       RightButton.PressedImageIndex = 4
@@ -156,7 +155,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
       Top = 123
       Width = 221
       Height = 21
-      Images = FormMDIMain.ImageList
+      Images = FormMDIMain.ImageList_Ord
       ReadOnly = True
       RightButton.ImageIndex = 34
       RightButton.PressedImageIndex = 4
@@ -170,7 +169,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
       Top = 150
       Width = 150
       Height = 21
-      Images = FormMDIMain.ImageList
+      Images = FormMDIMain.ImageList_Ord
       RightButton.ImageIndex = 34
       RightButton.PressedImageIndex = 4
       RightButton.Visible = True
@@ -183,7 +182,6 @@ object FormAppGroupEditor: TFormAppGroupEditor
       Top = 69
       Width = 150
       Height = 21
-      Images = FormMDIMain.ImageList
       RightButton.ImageIndex = 34
       RightButton.PressedImageIndex = 4
       RightButton.Visible = True
@@ -201,7 +199,6 @@ object FormAppGroupEditor: TFormAppGroupEditor
       ModalResult = 2
       TabOrder = 8
       TabStop = False
-      ExplicitTop = 338
     end
     object btnOK: TButton
       Left = 194
@@ -214,14 +211,13 @@ object FormAppGroupEditor: TFormAppGroupEditor
       TabOrder = 9
       TabStop = False
       OnClick = btnOKClick
-      ExplicitTop = 338
     end
     object edtGroupName: TButtonedEdit
       Left = 100
       Top = 42
       Width = 250
       Height = 21
-      Images = FormMDIMain.ImageList
+      Images = FormMDIMain.ImageList_Ord
       RightButton.ImageIndex = 34
       RightButton.PressedImageIndex = 4
       RightButton.Visible = True
@@ -237,7 +233,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
       Top = 177
       Width = 250
       Height = 21
-      Images = FormMDIMain.ImageList
+      Images = FormMDIMain.ImageList_Ord
       RightButton.ImageIndex = 34
       RightButton.PressedImageIndex = 4
       RightButton.Visible = True
@@ -273,7 +269,7 @@ object FormAppGroupEditor: TFormAppGroupEditor
       TabOrder = 0
       OnKeyPress = edtGroupNameKeyPress
     end
-    object GroupBox1: TGroupBox
+    object grpBranching: TGroupBox
       Left = 17
       Top = 204
       Width = 333

@@ -47,7 +47,7 @@ Type
       chkIsApplication: TCheckBox;
       Label7: TLabel;
       cbDisplayLabel: TComboBox;
-      GroupBox1: TGroupBox;
+    grpBranching: TGroupBox;
       chkMajor: TCheckBox;
       chkMinor: TCheckBox;
       chkRelease: TCheckBox;
@@ -151,6 +151,7 @@ Begin
    edtAppDest.Enabled := Not chkIsApplication.Checked;
    edtFileMask.Enabled := Not chkIsApplication.Checked;
    chkCreateFolder.Enabled := Not chkIsApplication.Checked;
+   grpBranching.Enabled := Not chkIsApplication.Checked;
 End;
 
 Procedure TFormAppGroupEditor.chkMajorClick(Sender: TObject);

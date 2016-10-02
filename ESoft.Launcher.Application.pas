@@ -11,6 +11,8 @@ Uses
    Winapi.Windows,
    System.Classes,
    IniFiles,
+   Vcl.Dialogs,
+   Vcl.Controls,
    System.SysUtils,
    ShellApi,
    Vcl.Graphics,
@@ -24,6 +26,7 @@ Uses
    System.Zip,
 {$ENDIF}
    Generics.Collections,
+   ESoft.Launcher.RecentItems,
    ESoft.Utils;
 
 Const
@@ -32,14 +35,6 @@ Const
 
 Type
    eTAppFile = (eafName, eafFileName, eafExtension);
-
-   IEApplication = Interface
-      Function GetActualName: String;
-      Function RunExecutable(aParameter: String = String.Empty): Boolean;
-      Function UnZip: Boolean;
-
-      Property ActualName: String Read GetActualName;
-   End;
 
 Type
    TEApplicationGroup = Class;
@@ -108,7 +103,6 @@ Type
       Function AddItem: TEApplication;
       Function InsertItem(Const aIndex: Integer): TEApplication;
       Function GetIcon: TIcon;
-
    Public
       Constructor Create;
       Destructor Destroy; Override;
@@ -214,8 +208,7 @@ End;
 
 Destructor TEApplicationGroup.Destroy;
 Begin
-   If Assigned(FIcon) Then
-      FreeAndNil(FIcon);
+   EFreeAndNil(FIcon);
 
    Inherited;
 End;
@@ -238,25 +231,22 @@ End;
 
 Function TEApplicationGroup.GetIcon: TIcon;
 Var
-   varSmallIcon, varLargeIcon: HICON;
-   iExtractedIconCount: Cardinal;
    sFileName: String;
 Begin
    Result := Nil;
+
+   If IsApplication Then
+      sFileName := SourceFolder + ExecutableName
+   Else
+      sFileName := DestFolder + ExecutableName;
+
+   EFreeAndNil(FIcon);
+   FIcon := TIcon.Create;
    Try
-      If IsApplication Then
-         sFileName := SourceFolder + ExecutableName
-      Else
-         sFileName := DestFolder + ExecutableName;
-      iExtractedIconCount := ExtractIconEx(PWideChar(sFileName), 0, varLargeIcon, varSmallIcon, 1);
-      Win32Check(iExtractedIconCount = 2);
-      If Not Assigned(FIcon) Then
-         FIcon := TIcon.Create;
-      FIcon.Handle := varLargeIcon;
+      FetchIcon(sFileName, FIcon);
       Result := FIcon;
    Except
-      FreeAndNil(FIcon);
-      Raise;
+      // Do nothing, it's not mandatory to have icon { Ajmal }
    End;
 End;
 
@@ -310,21 +300,15 @@ Begin
    Inherited;
 End;
 
-Function TEApplicationGroup.RunExecutable(aParameter: String = String.Empty): Boolean;
+Function TEApplicationGroup.RunExecutable(aParameter: String): Boolean;
 Begin
    If Not IsApplication Then
       Raise Exception.Create('Execution failed. Group is not created as application.');
 
    If FixedParameter <> cParameterNone Then
       aParameter := aParameter + ' ' + FixedParameter;
-   Try
-      If FormMDIMain.RunAsAdmin Then
-         RunAsAdmin(FormMDIMain.Handle, PWideChar(ExecutableName), PWideChar(aParameter), PWideChar(SourceFolder))
-      Else
-         ShellExecute(FormMDIMain.Handle, 'open', PWideChar(ExecutableName), PWideChar(aParameter), PWideChar(SourceFolder), SW_SHOWNORMAL);
-   Except
-      // Do nothing. It's not easily possible to handle all the issues related to shell execute. { Ajmal }
-   End;
+
+   FormMDIMain.RunApplication(Name, ExecutableName, aParameter, SourceFolder);
 End;
 
 Procedure TEApplicationGroup.SaveData(Const aFileName: String);
@@ -563,14 +547,8 @@ Function TEApplication.RunExecutable(aParameter: String): Boolean;
 Begin
    If Owner.FixedParameter <> cParameterNone Then
       aParameter := aParameter + ' ' + Owner.FixedParameter;
-   Try
-      If FormMDIMain.RunAsAdmin Then
-         RunAsAdmin(FormMDIMain.Handle, PWideChar(Owner.ExecutableName), PWideChar(aParameter), PWideChar(TargetFolder))
-      Else
-         ShellExecute(FormMDIMain.Handle, 'open', PWideChar(Owner.ExecutableName), PWideChar(aParameter), PWideChar(TargetFolder), SW_SHOWNORMAL);
-   Except
-      // Do nothing. It's not easily possible to handle all the issues related to shell execute. { Ajmal }
-   End;
+
+   FormMDIMain.RunApplication(Name, Owner.ExecutableName, aParameter, TargetFolder);
 End;
 
 Procedure TEApplication.SetOwner(Const Value: TEApplicationGroup);

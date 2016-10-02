@@ -34,7 +34,8 @@ Uses
    Generics.Collections,
    ESoft.Launcher.Parameter,
    ESoft.Launcher.Application,
-   ESoft.Utils;
+   ESoft.Utils,
+   ESoft.Launcher.RecentItems;
 
 Type
    TFormParameterBrowser = Class(TForm)
@@ -134,7 +135,7 @@ Procedure TFormParameterBrowser.btnOKClick(Sender: TObject);
 Begin
    If Sender <> btnOK Then
       btnOK.ElevationRequired := Sender = PMItemRunasadministrator;
-   FormMDIMain.RunAsAdmin := btnOK.ElevationRequired;
+   FormMDIMain.IsRunAsAdmin := btnOK.ElevationRequired;
 
    Assert(Assigned(FSelectedApplication));
 
@@ -258,7 +259,7 @@ Procedure TFormParameterBrowser.FormCreate(Sender: TObject);
    End;
 
 Begin
-   btnOK.ElevationRequired := FormMDIMain.RunAsAdmin;
+   btnOK.ElevationRequired := FormMDIMain.IsRunAsAdmin;
    dbGridParameters.Columns[0].Title.Font.Color := clBlue;
    AddProgressbars;
    LoadParametrs;

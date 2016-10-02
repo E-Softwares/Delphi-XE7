@@ -95,7 +95,7 @@ object FormParamEditor: TFormParamEditor
       Top = 41
       Width = 250
       Height = 21
-      Images = FormMDIMain.ImageList
+      Images = FormMDIMain.ImageList_Ord
       RightButton.ImageIndex = 34
       RightButton.PressedImageIndex = 4
       RightButton.Visible = True
@@ -108,7 +108,7 @@ object FormParamEditor: TFormParamEditor
       Top = 14
       Width = 250
       Height = 21
-      Images = FormMDIMain.ImageList
+      Images = FormMDIMain.ImageList_Ord
       RightButton.ImageIndex = 34
       RightButton.PressedImageIndex = 4
       RightButton.Visible = True

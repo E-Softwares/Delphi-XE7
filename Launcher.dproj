@@ -108,11 +108,13 @@
             <Form>FormParameterBrowser</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="ESoft.Utils.pas"/>
         <DCCReference Include="ESoft.Launcher.UI.BackupRestore.pas">
             <Form>FormBackupRestore</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="ESoft.Utils.pas"/>
+        <DCCReference Include="ESoft.Launcher.RecentItems.pas"/>
+        <DCCReference Include="ESoft.Launcher.Clipboard.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
