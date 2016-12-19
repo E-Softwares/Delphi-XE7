@@ -46,7 +46,8 @@ Uses
    Vcl.DBClientActns,
    Vcl.DBActns,
    System.Actions,
-   Vcl.ActnList;
+   Vcl.ActnList,
+   ESoft.Launcher.Clipboard;
 
 Const
    cIMG_NONE = -1;
@@ -150,6 +151,8 @@ Type
       Procedure FormCloseQuery(Sender: TObject; Var CanClose: Boolean);
       Procedure tvApplicationsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
       Procedure cbGroupItemsChange(Sender: TObject);
+      Procedure PMItemSaveClipboardClick(Sender: TObject);
+      Procedure PMItemClipboardItemsClick(Sender: TObject);
       // Private declarations. Variables/Methods can be access inside this class and other class in the same unit. { Ajmal }
    Strict Private
       // Strict Private declarations. Variables/Methods can be access inside this class only. { Ajmal }
@@ -163,10 +166,12 @@ Type
       FConnections: TEConnections;
       FDisplayLabels: TStringList;
       FRecentItems: TERecentItems;
+      FClipboardItems: TEClipboardItems;
 
       Procedure OnRecentItemsChange(aSender: TObject);
       Function MenuItemApplications(Const aType: Integer = cIMG_NONE): TMenuItem;
       Procedure WMHotKey(Var Msg: TWMHotKey); Message WM_HOTKEY;
+      Procedure OpenClipboardBrowser;
       Procedure OpenParamBrowser(Const aApplication: IEApplication = Nil);
       Function GetConnections: TEConnections;
       Function GetAppGroups: TEApplicationGroups;
@@ -180,6 +185,7 @@ Type
       Function GetRecentItems: TERecentItems;
       Procedure ClearRecentItems(aSender: TObject);
       Function AppSeparatorMenuIndex(Const aType: Integer): Integer;
+      Function GetClipboardItems: TEClipboardItems;
    Public
       { Public declarations }
       Procedure LoadConfig;
@@ -198,6 +204,7 @@ Type
       Property IsRunAsAdmin: Boolean Read GetRunAsAdmin Write SetRunAsAdmin;
       Property LastUsedParamCode: String Read FLastUsedParamCode Write FLastUsedParamCode;
       Property DisplayLabels: TStringList Read GetDisplayLabels;
+      Property ClipboardItems: TEClipboardItems Read GetClipboardItems;
    End;
 
 Var
@@ -211,10 +218,11 @@ Uses
    ESoft.Launcher.UI.AppGroupEditor,
    ESoft.Launcher.UI.ParamBrowser,
    ESoft.UI.Downloader,
-   ESoft.Launcher.UI.BackupRestore;
+   ESoft.Launcher.UI.BackupRestore,
+   ESoft.Launcher.UI.ClipboardBrowser;
 
 Const
-   cApplication_Version = 1008;
+   cApplication_Version = 1010;
 
    cIMG_DELETE = 4;
    cIMG_BRANCH = 9;
@@ -265,6 +273,7 @@ Begin
       End;
       Visible := Not MItemStartMinimized.Checked;
       UpdateApplicationList;
+      ClipboardItems.Load;
    End;
 End;
 
@@ -335,11 +344,13 @@ Procedure TFormMDIMain.FormDestroy(Sender: TObject);
 Begin
    UnRegisterHotKey(Handle, FHotKeyMain);
    GlobalDeleteAtom(FHotKeyMain);
+   ClipboardItems.Save;
 
    EFreeAndNil(FFixedMenuItems);
    EFreeAndNil(FRecentItems);
    EFreeAndNil(FDisplayLabels);
    EFreeAndNil(FConnections);
+   EFreeAndNil(FClipboardItems);
 
    If Assigned(FParameters) Then
    Begin
@@ -367,6 +378,13 @@ Begin
    End;
 
    Result := FAppGroups;
+End;
+
+Function TFormMDIMain.GetClipboardItems: TEClipboardItems;
+Begin
+   If Not Assigned(FClipBoardItems) Then
+      FClipboardItems := TEClipboardItems.Create;
+   Result := FClipboardItems;
 End;
 
 Function TFormMDIMain.GetConnections: TEConnections;
@@ -519,6 +537,7 @@ Begin
       _AddFileToZip(ParentFolder + cConfig_INI);
       _AddFileToZip(ParentFolder + cGroup_INI);
       _AddFileToZip(ParentFolder + cParam_INI);
+      _AddFileToZip(ParentFolder + cClipbord_Data);
       varZipFile.Close;
    Finally
       varZipFile.Free;
@@ -541,12 +560,15 @@ Begin
    Try
       FormBackupRestore.ShowModal;
    Finally
-      FormBackupRestore.Free;
+      FreeAndNil(FormBackupRestore);
    End;
 End;
 
 Procedure TFormMDIMain.ClearRecentItems(aSender: TObject);
 Begin
+   If MessageDlg('Do you want to clear recent items ?', mtConfirmation, [mbYes, mbNo], 0, mbNo) = mrNo Then
+      Exit;
+
    RecentItems.Clear;
    PMItemRecentItems.Clear;
 End;
@@ -557,20 +579,42 @@ Procedure TFormMDIMain.OnRecentItemsChange(aSender: TObject);
    Var
       iImageIndex: Integer;
       varIcon: TIcon;
+      iCntr: Integer;
+      varParamMenu: TMenuItem;
    Begin
       Result := TMenuItem.Create(PMItemRecentItems);
       Result.Caption := aCaption;
       If Assigned(aItem) Then
       Begin
-         // varIcon := aItem.Icon;
-         // If Assigned(varIcon) Then
-         // Begin
-         // iImageIndex := imlAppIcons.AddIcon(aItem.Icon);
-         // imlAppIcons.GetBitmap(iImageIndex, Result.Bitmap);
-         // End;
-         Result.Hint := aItem.Parameter;
-         Result.Tag := NativeInt(aItem);
-         Result.OnClick := tvApplicationsDblClick;
+         Try
+            varIcon := aItem.Icon;
+            If Assigned(varIcon) Then
+            Begin
+               iImageIndex := imlAppIcons.AddIcon(aItem.Icon);
+               imlAppIcons.GetBitmap(iImageIndex, Result.Bitmap);
+            End;
+         Except
+            // Currently it's not important to have the icon. { Ajmal }
+         End;
+         // Adding the new item { Ajmal }
+         If aItem.Parameter.Count < 2 Then
+         Begin
+            Result.Hint := '';
+            Result.Tag := NativeInt(aItem);
+            Result.OnClick := tvApplicationsDblClick;
+         End
+         Else
+         Begin
+            For iCntr := 0 To Pred(aItem.Parameter.Count) Do
+            Begin
+               varParamMenu := TMenuItem.Create(Result);
+               varParamMenu.Caption := aItem.Parameter[iCntr];
+               varParamMenu.Hint := aItem.Parameter[iCntr];
+               varParamMenu.OnClick := tvApplicationsDblClick;
+               varParamMenu.Tag := NativeInt(aItem);
+               Result.Add(varParamMenu);
+            End;
+         End;
       End;
       PMItemRecentItems.Add(Result);
    End;
@@ -592,6 +636,27 @@ Begin
          Break;
 
       _AddMenuItem(RecentItems[iCntr].Name, RecentItems[iCntr]);
+   End;
+End;
+
+Procedure TFormMDIMain.OpenClipboardBrowser;
+Begin
+   If Assigned(FormClipboardBrowser) Then
+   Begin
+      FormClipboardBrowser.BringToFront;
+      EFlashWindow(FormClipboardBrowser.Handle);
+      Exit;
+   End;
+
+   If Visible Then
+      FormClipboardBrowser := TFormClipboardBrowser.Create(Self)
+   Else
+      FormClipboardBrowser := TFormClipboardBrowser.Create(Application);
+   Try
+      FormClipboardBrowser.Load;
+      FormClipboardBrowser.ShowModal;
+   Finally
+      EFreeAndNil(FormClipboardBrowser);
    End;
 End;
 
@@ -669,6 +734,11 @@ Begin
       MessageDlg(cNoNewAppVersionAvailablePrompt, mtInformation, [mbOK], 0);
 End;
 
+Procedure TFormMDIMain.PMItemClipboardItemsClick(Sender: TObject);
+Begin
+   OpenClipboardBrowser;
+End;
+
 Procedure TFormMDIMain.PMItemDeleteGroupClick(Sender: TObject);
 Var
    varSelected: TObject;
@@ -713,11 +783,44 @@ Begin
    //
 End;
 
+Procedure TFormMDIMain.PMItemSaveClipboardClick(Sender: TObject);
+Var
+   sClpBrdName: String;
+   bFormVisiblity: Boolean;
+Const
+   cItemExistMessage = 'An item with same name already exist.' + sLineBreak + 'Do you want to overwrite ?';
+Begin
+   bFormVisiblity := Visible;
+   Try
+      If Not Visible Then
+         Show;
+
+      While True Do
+      Begin
+         sClpBrdName := InputBox('Copy clipboard', 'Name', '');
+         If sClpBrdName.IsEmpty Then
+            Break; // User canceled the dialog. Exit loop now { Ajmal }
+         If ClipboardItems.Contains(sClpBrdName) And (MessageDlg(cItemExistMessage, mtWarning, [mbYes, mbNo], 0, mbNo) = mrNo) Then
+            Continue;
+         ClipboardItems.AddItem(sClpBrdName).LoadFromClipboard;
+         ClipboardItems.Save;
+         Break; // We did the change. Exit the loop now { Ajmal }
+      End;
+   Finally
+      Visible := bFormVisiblity;
+   End;
+End;
+
 Procedure TFormMDIMain.PMItemShowHideClick(Sender: TObject);
 Begin
    If Assigned(FormParameterBrowser) Then
    Begin
       OpenParamBrowser;
+      Exit;
+   End
+   Else If Assigned(FormClipboardBrowser) Then
+   Begin
+      OpenClipboardBrowser;
       Exit;
    End;
 
@@ -744,6 +847,7 @@ Begin
    PMItemCategories.Visible := cbGroupItems.ItemIndex In [cGroupVisible_All, cGroupVisible_CategoryOnly];
    PMItemApplications.Enabled := PMItemApplications.Count > 0;
    PMItemCategories.Visible := PMItemCategories.Count > 0;
+   PMItemClipboard.Enabled := Not Assigned(FormClipboardBrowser);
 
    If Visible Then
       PMItemShowHide.ImageIndex := cIMG_HIDE
@@ -828,7 +932,9 @@ Var
    varAppGroup: TEApplicationGroup Absolute varSelected;
    varApplication: TEApplication Absolute varSelected;
    varRecentItem: TERecentItem Absolute varSelected;
+   varMenu: TMenuItem ABSOLUTE Sender;
 Begin
+   varSelected := Nil;
    If Sender Is TTreeView Then
    Begin
       If Not Assigned(tvApplications.Selected) Then
@@ -836,12 +942,12 @@ Begin
       varSelected := tvApplications.Selected.Data;
    End
    Else If Sender Is TMenuItem Then
-      varSelected := Pointer(TMenuItem(Sender).Tag);
+      varSelected := Pointer(varMenu.Tag);
 
    If Assigned(varSelected) Then
    Begin
       If varSelected.InheritsFrom(TERecentItem) Then
-         varRecentItem.RunExecutable
+         varRecentItem.RunExecutable(varMenu.Hint) // TERecentItem are in Popupmenu only { Ajmal }
       Else If varSelected.InheritsFrom(TEApplication) Then
          OpenParamBrowser(varApplication)
       Else If varSelected.InheritsFrom(TEApplicationGroup) And varAppGroup.IsApplication Then
@@ -1092,10 +1198,8 @@ Begin
       Else
          ShellExecute(FormMDIMain.Handle, 'open', PWideChar(aExecutableName), PWideChar(aParameter), PWideChar(aSourcePath), SW_SHOWNORMAL);
 
-      varRecentItems := RecentItems.AddItem(aName);
-      varRecentItems.ExecutableName := aExecutableName;
-      varRecentItems.Parameter := aParameter;
-      varRecentItems.SourceFolder := aSourcePath;
+      varRecentItems := RecentItems.AddItem(aName, aSourcePath, aExecutableName);
+      varRecentItems.Parameter.Add(aParameter);
    Except
       // Do nothing. It's not easily possible to handle all the issues related to shell execute. { Ajmal }
    End;

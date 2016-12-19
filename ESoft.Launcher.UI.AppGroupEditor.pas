@@ -47,7 +47,7 @@ Type
       chkIsApplication: TCheckBox;
       Label7: TLabel;
       cbDisplayLabel: TComboBox;
-    grpBranching: TGroupBox;
+      grpBranching: TGroupBox;
       chkMajor: TCheckBox;
       chkMinor: TCheckBox;
       chkRelease: TCheckBox;

@@ -22,6 +22,7 @@ Uses
    AbZBrows,
    AbUnzper,
    AbComCtrls,
+   AbArcTyp,
 {$ELSE}
    System.Zip,
 {$ENDIF}
@@ -608,6 +609,7 @@ Begin
 {$IFDEF AbbreviaZipper}
       varUnAbZipper.FileName := Owner.SourceFolder + FileName;
       varUnAbZipper.BaseDirectory := TargetFolder;
+      varUnAbZipper.ExtractOptions := [eoCreateDirs, eoRestorePath];
       varUnAbZipper.ExtractFiles('*.*');
 {$ELSE}
       varZipFile.ExtractZipFile(Owner.SourceFolder + FileName, sDestFolder);

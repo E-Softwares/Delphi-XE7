@@ -5,18 +5,19 @@ Program Launcher;
 { ajumalp@gmail.com }
 { ---------------------------------------------------------- }
 
-Uses
-   Vcl.Forms,
-   UnitMDIMain In 'UnitMDIMain.pas' {FormMDIMain} ,
-   ESoft.Launcher.Application In 'ESoft.Launcher.Application.pas',
-   ESoft.Launcher.UI.AppGroupEditor In 'ESoft.Launcher.UI.AppGroupEditor.pas' {FormAppGroupEditor} ,
-   ESoft.Launcher.Parameter In 'ESoft.Launcher.Parameter.pas',
-   ESoft.Launcher.UI.ParamEditor In 'ESoft.Launcher.UI.ParamEditor.pas' {FormParamEditor} ,
-   ESoft.Launcher.UI.ParamBrowser In 'ESoft.Launcher.UI.ParamBrowser.pas' {FormParameterBrowser} ,
-   ESoft.Utils In 'ESoft.Utils.pas',
-   ESoft.Launcher.UI.BackupRestore In 'ESoft.Launcher.UI.BackupRestore.pas' {FormBackupRestore} ,
-   ESoft.Launcher.RecentItems In 'ESoft.Launcher.RecentItems.pas',
-   ESoft.Launcher.Clipboard In 'ESoft.Launcher.Clipboard.pas';
+uses
+  Vcl.Forms,
+  UnitMDIMain in 'UnitMDIMain.pas' {FormMDIMain},
+  ESoft.Launcher.Application in 'ESoft.Launcher.Application.pas',
+  ESoft.Launcher.UI.AppGroupEditor in 'ESoft.Launcher.UI.AppGroupEditor.pas' {FormAppGroupEditor},
+  ESoft.Launcher.Parameter in 'ESoft.Launcher.Parameter.pas',
+  ESoft.Launcher.UI.ParamEditor in 'ESoft.Launcher.UI.ParamEditor.pas' {FormParamEditor},
+  ESoft.Launcher.UI.ParamBrowser in 'ESoft.Launcher.UI.ParamBrowser.pas' {FormParameterBrowser},
+  ESoft.Utils in 'ESoft.Utils.pas',
+  ESoft.Launcher.UI.BackupRestore in 'ESoft.Launcher.UI.BackupRestore.pas' {FormBackupRestore},
+  ESoft.Launcher.RecentItems in 'ESoft.Launcher.RecentItems.pas',
+  ESoft.Launcher.Clipboard in 'ESoft.Launcher.Clipboard.pas',
+  ESoft.Launcher.UI.ClipboardBrowser in 'ESoft.Launcher.UI.ClipboardBrowser.pas' {FormClipboardBrowser};
 
 {$R *.res}
 
@@ -27,6 +28,6 @@ Begin
    Application.MainFormOnTaskbar := True;
    Application.Title := 'Launcher';
    Application.CreateForm(TFormMDIMain, FormMDIMain);
-   Application.Run;
+  Application.Run;
 
 End.

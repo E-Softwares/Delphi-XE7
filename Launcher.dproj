@@ -39,7 +39,14 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_UnitSearchPath>$(ESoft_BasicPackagePath);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <SanitizedProjectName>Launcher</SanitizedProjectName>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
@@ -56,7 +63,7 @@
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <DCC_UsePackage>dxTileControlRS16;cxLibraryRS16;dxSkinSevenRS16;dxPsPrVwAdvRS16;dxSkinSummer2008RS16;dxPSCoreRS16;cxPivotGridOLAPRS16;dxPScxTLLnkRS16;dxPScxGridLnkRS16;cxPageControlRS16;dxSkinVS2010RS16;vclimg;dxSkinDevExpressStyleRS16;dxSkinWhiteprintRS16;fmi;dxComnRS16;vcldb;dxSkinBlackRS16;dxADOServerModeRS16;dxBarExtDBItemsRS16;dxSkinXmas2008BlueRS16;dxSkinOffice2007BlueRS16;CloudService;dxSkinOffice2007GreenRS16;FmxTeeUI;cxDataRS16;cxBarEditItemRS16;dxDockingRS16;dxPSDBTeeChartRS16;cxPageControldxBarPopupMenuRS16;dxPSLnksRS16;dxBarExtItemsRS16;dxPSTeeChartRS16;dxPSdxLCLnkRS16;cxVerticalGridRS16;dxSkinSharpRS16;dxSkinOffice2007BlackRS16;dxorgcRS16;OpenWirePkgD16;dxSkinBlueprintRS16;dxWizardControlRS16;dxPScxExtCommonRS16;vcldbx;dxNavBarRS16;DelphiArea;cxSchedulerTreeBrowserRS16;DBXOdbcDriver;dxdbtrRS16;dxSkinFoggyRS16;dxPScxSSLnkRS16;RapidXE2;frxDB16;intrawebdb_120_160;dxSkinDarkSideRS16;dxSkinscxPCPainterRS16;fs16;vclactnband;FMXTee;dxPScxSchedulerLnkRS16;dxServerModeRS16;bindcompvcl;dxPSdxDBTVLnkRS16;vclie;dxSkinSilverRS16;dsnapcon;dxSkinOffice2013WhiteRS16;dcldxSkinsCoreRS16;dxSkinLilianRS16;vclx;dxSkinValentineRS16;dxFlowChartRS16;dxGDIPlusRS16;dxSkinSharpPlusRS16;dxdborRS16;dxPScxVGridLnkRS16;dxLayoutControlRS16;dxPScxPivotGridLnkRS16;dxCoreRS16;cxExportRS16;dxBarRS16;dxSkinsdxNavBarPainterRS16;cxSpreadSheetRS16;dxSkinCoffeeRS16;TeeDB;dxDBXServerModeRS16;cxTreeListdxBarPopupMenuRS16;plugedXE2;vclib;inetdbbde;dxRibbonRS16;DBXSybaseASEDriver;cxTreeListRS16;dxSkinOffice2007SilverRS16;dxSkinsdxRibbonPainterRS16;vcldsnap;dxSkinBlueRS16;DBXDb2Driver;Intraweb_120_160;vclribbon;frxe16;dxSkinDarkRoomRS16;dxSkinscxSchedulerPainterRS16;vcl;dxSkinDevExpressDarkStyleRS16;DBXMSSQLDriver;CodeSiteExpressPkg;cxSchedulerGridRS16;webdsnap;dxSkinTheAsphaltWorldRS16;dxtrmdRS16;dxSkinsdxDLPainterRS16;dxSkinOffice2010BlackRS16;dxSkinMoneyTwinsRS16;dxSkinPumpkinRS16;adortl;dxSkinHighContrastRS16;dxSkiniMaginaryRS16;frx16;dxSkinLondonLiquidSkyRS16;dxPSdxDBOCLnkRS16;dxSkinsdxBarPainterRS16;Tee;dxSkinGlassOceansRS16;dxSkinLiquidSkyRS16;dxSkinsCoreRS16;svnui;cxPivotGridChartRS16;dxPScxCommonRS16;dxmdsRS16;dxSpellCheckerRS16;dxPSPrVwRibbonRS16;cxGridRS16;cxEditorsRS16;TeeUI;cxPivotGridRS16;dxSkinSevenClassicRS16;cxSchedulerRS16;dxSkinOffice2010SilverRS16;vcltouch;websnap;dxSkinOffice2007PinkRS16;VclSmp;dxSkinSpringTimeRS16;dxTabbedMDIRS16;fsDB16;DataSnapConnectors;dxSkinStardustRS16;dxPSdxOCLnkRS16;dxSkinOffice2010BlueRS16;dxPSdxFCLnkRS16;dxThemeRS16;dxPScxPCProdRS16;svn;dxSkinCaramelRS16;tflytreeproXE2;bdertl;dxSkinMcSkinRS16;dxBarDBNavRS16;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>dxTileControlRS16;cxLibraryRS16;dxSkinSevenRS16;dxPsPrVwAdvRS16;dxSkinSummer2008RS16;dxPSCoreRS16;cxPivotGridOLAPRS16;dxPScxTLLnkRS16;dxPScxGridLnkRS16;cxPageControlRS16;dxSkinVS2010RS16;vclimg;dxSkinDevExpressStyleRS16;dxSkinWhiteprintRS16;fmi;dxComnRS16;vcldb;dxSkinBlackRS16;dxADOServerModeRS16;dxBarExtDBItemsRS16;dxSkinXmas2008BlueRS16;dxSkinOffice2007BlueRS16;CloudService;dxSkinOffice2007GreenRS16;FmxTeeUI;cxDataRS16;cxBarEditItemRS16;dxDockingRS16;dxPSDBTeeChartRS16;cxPageControldxBarPopupMenuRS16;dxPSLnksRS16;dxBarExtItemsRS16;dxPSTeeChartRS16;dxPSdxLCLnkRS16;cxVerticalGridRS16;dxSkinSharpRS16;dxSkinOffice2007BlackRS16;dxorgcRS16;OpenWirePkgD16;dxSkinBlueprintRS16;dxWizardControlRS16;dxPScxExtCommonRS16;vcldbx;dxNavBarRS16;DelphiArea;cxSchedulerTreeBrowserRS16;DBXOdbcDriver;dxdbtrRS16;dxSkinFoggyRS16;dxPScxSSLnkRS16;RapidXE2;frxDB16;intrawebdb_120_160;dxSkinDarkSideRS16;dxSkinscxPCPainterRS16;fs16;vclactnband;FMXTee;dxPScxSchedulerLnkRS16;dxServerModeRS16;bindcompvcl;dxPSdxDBTVLnkRS16;vclie;dxSkinSilverRS16;dsnapcon;dxSkinOffice2013WhiteRS16;dcldxSkinsCoreRS16;dxSkinLilianRS16;vclx;dxSkinValentineRS16;dxFlowChartRS16;dxGDIPlusRS16;dxSkinSharpPlusRS16;dxdborRS16;dxPScxVGridLnkRS16;dxLayoutControlRS16;dxPScxPivotGridLnkRS16;dxCoreRS16;cxExportRS16;dxBarRS16;dxSkinsdxNavBarPainterRS16;cxSpreadSheetRS16;dxSkinCoffeeRS16;TeeDB;dxDBXServerModeRS16;cxTreeListdxBarPopupMenuRS16;plugedXE2;vclib;inetdbbde;dxRibbonRS16;DBXSybaseASEDriver;cxTreeListRS16;dxSkinOffice2007SilverRS16;dxSkinsdxRibbonPainterRS16;vcldsnap;dxSkinBlueRS16;DBXDb2Driver;Intraweb_120_160;vclribbon;frxe16;dxSkinDarkRoomRS16;dxSkinscxSchedulerPainterRS16;vcl;dxSkinDevExpressDarkStyleRS16;DBXMSSQLDriver;cxSchedulerGridRS16;webdsnap;dxSkinTheAsphaltWorldRS16;dxtrmdRS16;dxSkinsdxDLPainterRS16;dxSkinOffice2010BlackRS16;dxSkinMoneyTwinsRS16;dxSkinPumpkinRS16;adortl;dxSkinHighContrastRS16;dxSkiniMaginaryRS16;frx16;dxSkinLondonLiquidSkyRS16;dxPSdxDBOCLnkRS16;dxSkinsdxBarPainterRS16;Tee;dxSkinGlassOceansRS16;dxSkinLiquidSkyRS16;dxSkinsCoreRS16;svnui;cxPivotGridChartRS16;dxPScxCommonRS16;dxmdsRS16;dxSpellCheckerRS16;dxPSPrVwRibbonRS16;cxGridRS16;cxEditorsRS16;TeeUI;cxPivotGridRS16;dxSkinSevenClassicRS16;cxSchedulerRS16;dxSkinOffice2010SilverRS16;vcltouch;websnap;dxSkinOffice2007PinkRS16;VclSmp;dxSkinSpringTimeRS16;dxTabbedMDIRS16;fsDB16;DataSnapConnectors;dxSkinStardustRS16;dxPSdxOCLnkRS16;dxSkinOffice2010BlueRS16;dxPSdxFCLnkRS16;dxThemeRS16;dxPScxPCProdRS16;svn;dxSkinCaramelRS16;tflytreeproXE2;bdertl;dxSkinMcSkinRS16;dxBarDBNavRS16;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
@@ -85,6 +92,10 @@
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>0</DCC_DebugInformation>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -115,6 +126,10 @@
         </DCCReference>
         <DCCReference Include="ESoft.Launcher.RecentItems.pas"/>
         <DCCReference Include="ESoft.Launcher.Clipboard.pas"/>
+        <DCCReference Include="ESoft.Launcher.UI.ClipboardBrowser.pas">
+            <Form>FormClipboardBrowser</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -162,7 +177,9 @@
                 <Source>
                     <Source Name="MainSource">Launcher.dpr</Source>
                 </Source>
-                <Excluded_Packages/>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="C:\Program Files (x86)\Raize\CS5\Bin\CodeSiteExpressPkg_Design210.bpl">CodeSite Express 5.1.6</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment>
                 <DeployFile LocalName="Win32\Debug\Launcher.exe" Configuration="Debug" Class="ProjectOutput">
