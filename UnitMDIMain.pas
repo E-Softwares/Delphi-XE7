@@ -849,6 +849,7 @@ Begin
    PMItemApplications.Enabled := PMItemApplications.Count > 0;
    PMItemCategories.Visible := PMItemCategories.Count > 0;
    PMItemClipboard.Enabled := Not Assigned(FormClipboardBrowser);
+   PMItemClipboardItems.Enabled := ClipboardItems.Count > 0;
 
    If Visible Then
       PMItemShowHide.ImageIndex := cIMG_HIDE
