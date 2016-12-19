@@ -330,6 +330,7 @@ Begin
       FFixedMenuItems.Add(MenuItemApplications[iCntr]);
 
    PanelDeveloper.Caption := 'Developed by Muhammad Ajmal P';
+   Caption := Format('Launcher [Version %d]', [cApplication_Version]);
    FInitialized := False;
    FParentFolder := ExtractFilePath(ParamStr(0));
    MItemAutoStart.Checked := AddToStartup(cESoftLauncher, REG_READ);
