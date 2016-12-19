@@ -63,7 +63,6 @@ object FormClipboardBrowser: TFormClipboardBrowser
       TextHint = ' Filter Text'
       OnChange = edtFilterChange
       OnKeyUp = edtFilterKeyUp
-      ExplicitWidth = 577
     end
     object chkSearchInData: TCheckBox
       Left = 551
@@ -74,9 +73,6 @@ object FormClipboardBrowser: TFormClipboardBrowser
       Caption = ' Search in data'
       TabOrder = 1
       OnClick = chkSearchInDataClick
-      ExplicitLeft = 280
-      ExplicitTop = 8
-      ExplicitHeight = 17
     end
   end
   object dbGridClpBrdItems: TDBGrid
@@ -121,8 +117,6 @@ object FormClipboardBrowser: TFormClipboardBrowser
     DataSource = SourceClipboardItems
     ReadOnly = True
     TabOrder = 2
-    ExplicitLeft = 240
-    ExplicitHeight = 330
   end
   object Panel1: TPanel
     AlignWithMargins = True
@@ -149,7 +143,6 @@ object FormClipboardBrowser: TFormClipboardBrowser
       TabOrder = 0
       TabStop = False
       OnClick = btnCancelClick
-      ExplicitTop = 3
     end
     object btnSave: TButton
       AlignWithMargins = True

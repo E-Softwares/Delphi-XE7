@@ -47,10 +47,10 @@ Type
       btnCancel: TButton;
       btnSave: TButton;
       PMItemRename: TMenuItem;
-    N1: TMenuItem;
-    MItemDelete: TMenuItem;
-    MItemRename: TMenuItem;
-    MItemSave: TMenuItem;
+      N1: TMenuItem;
+      MItemDelete: TMenuItem;
+      MItemRename: TMenuItem;
+      MItemSave: TMenuItem;
       Procedure edtFilterChange(Sender: TObject);
       Procedure edtFilterKeyUp(Sender: TObject; Var Key: Word; Shift: TShiftState);
       Procedure MItemCloseClick(Sender: TObject);
@@ -187,6 +187,9 @@ End;
 
 Procedure TFormClipboardBrowser.PMItemDeleteClick(Sender: TObject);
 Begin
+   If (MessageDlg('Are you sure you want to delete this item ?', mtWarning, [mbYes, mbNo], 0, mbNo) = mrNo) Then
+      Exit;
+
    ClipboardItems.DeleteByItemName(ClntDSetClipBboardItemsName.AsString);
    Load;
 End;

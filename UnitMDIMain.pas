@@ -13,6 +13,7 @@ Uses
    System.SysUtils,
    System.Variants,
    DateUtils,
+   Clipbrd,
    StrUtils,
    System.Classes,
    Vcl.Graphics,
@@ -798,7 +799,7 @@ Begin
 
       While True Do
       Begin
-         sClpBrdName := InputBox('Copy clipboard', 'Name', '');
+         sClpBrdName := InputBox('Copy clipboard', 'Name', DateTimeToStr(Now));
          If sClpBrdName.IsEmpty Then
             Break; // User canceled the dialog. Exit loop now { Ajmal }
          If ClipboardItems.Contains(sClpBrdName) And (MessageDlg(cItemExistMessage, mtWarning, [mbYes, mbNo], 0, mbNo) = mrNo) Then
@@ -848,8 +849,9 @@ Begin
    PMItemCategories.Visible := cbGroupItems.ItemIndex In [cGroupVisible_All, cGroupVisible_CategoryOnly];
    PMItemApplications.Enabled := PMItemApplications.Count > 0;
    PMItemCategories.Visible := PMItemCategories.Count > 0;
-   PMItemClipboard.Enabled := Not Assigned(FormClipboardBrowser);
    PMItemClipboardItems.Enabled := ClipboardItems.Count > 0;
+   PMItemSaveClipboard.Enabled := Not Clipboard.AsText.Trim.IsEmpty;
+   PMItemClipboard.Enabled := (PMItemSaveClipboard.Enabled Or PMItemClipboardItems.Enabled) And Not Assigned(FormClipboardBrowser);
 
    If Visible Then
       PMItemShowHide.ImageIndex := cIMG_HIDE
